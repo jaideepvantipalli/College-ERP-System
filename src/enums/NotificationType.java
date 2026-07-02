@@ -1,5 +1,10 @@
 package enums;
 
-public class NotificationType {
-    
+/**
+ * Defines the target audience for notifications.
+ */
+public enum NotificationType {
+    ALL,
+    STUDENT,
+    FACULTY
 }

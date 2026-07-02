@@ -1,5 +1,12 @@
 package enums;
 
-public class FeeStatus {
-    
+/**
+ * Defines fee payment status.
+ */
+public enum FeeStatus {
+
+    PAID,
+    PARTIAL,
+    PENDING
+
 }

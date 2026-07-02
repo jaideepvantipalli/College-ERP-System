@@ -1,5 +1,11 @@
 package enums;
 
-public class AttendanceStatus {
-    
+/**
+ * Defines attendance status.
+ */
+public enum AttendanceStatus {
+
+    PRESENT,
+    ABSENT
+
 }

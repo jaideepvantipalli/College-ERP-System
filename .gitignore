@@ -1,0 +1,42 @@
+# Java
+*.class
+
+# Build
+bin/
+out/
+target/
+build/
+
+# VS Code
+.vscode/*.log
+.vscode/settings.json
+
+# IntelliJ
+.idea/
+*.iml
+
+# Eclipse
+.project
+.classpath
+.settings/
+
+# NetBeans
+nbproject/
+nbbuild/
+dist/
+
+# Logs
+*.log
+
+# Temporary Files
+*.tmp
+*.temp
+*.bak
+
+# OS Files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Environment
+.env
