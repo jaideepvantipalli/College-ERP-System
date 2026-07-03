@@ -29,6 +29,7 @@ public class AdminMenu {
             System.out.println("7. Fee Module");
             System.out.println("8. Library Module");
             System.out.println("9. Notification Module");
+            System.out.println("10. Report Module");
             System.out.println("0. Exit");
             System.out.print("Choice : ");
 
