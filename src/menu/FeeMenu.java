@@ -4,17 +4,17 @@ import controller.FeeController;
 import enums.FeeStatus;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Scanner;
 import model.Fee;
+import util.InputUtil;
+import util.ConsolePrinter;
+import util.TablePrinter;
 
 public class FeeMenu {
 
-    private final Scanner scanner;
     private final FeeController controller;
 
     public FeeMenu() {
 
-        scanner = new Scanner(System.in);
         controller = new FeeController();
 
     }
@@ -23,9 +23,7 @@ public class FeeMenu {
 
         while (true) {
 
-            System.out.println("\n================================");
-            System.out.println(" FEE MANAGEMENT ");
-            System.out.println("================================");
+            ConsolePrinter.title("Fee Management");
             System.out.println("1. Add Fee");
             System.out.println("2. View Fees");
             System.out.println("3. Search Fee");
@@ -34,9 +32,7 @@ public class FeeMenu {
             System.out.println("6. Fee By Student");
             System.out.println("0. Back");
 
-            System.out.print("Choice : ");
-
-            int choice = Integer.parseInt(scanner.nextLine());
+            int choice = InputUtil.readInt("Choice : ");
 
             switch (choice) {
 
@@ -68,7 +64,7 @@ public class FeeMenu {
                     return;
 
                 default:
-                    System.out.println("Invalid Choice.");
+                    ConsolePrinter.warning("Invalid Choice.");
 
             }
 
@@ -80,14 +76,9 @@ public class FeeMenu {
 
         Fee fee = new Fee();
 
-        System.out.print("Student ID : ");
-        fee.setStudentId(Integer.parseInt(scanner.nextLine()));
-
-        System.out.print("Total Fee : ");
-        fee.setTotalFee(Double.parseDouble(scanner.nextLine()));
-
-        System.out.print("Paid Fee : ");
-        fee.setPaidFee(Double.parseDouble(scanner.nextLine()));
+        fee.setStudentId(InputUtil.readInt("Student ID : "));
+        fee.setTotalFee(InputUtil.readDouble("Total Fee : "));
+        fee.setPaidFee(InputUtil.readDouble("Paid Fee : "));
 
         fee.setBalance(fee.getTotalFee() - fee.getPaidFee());
 
@@ -109,11 +100,11 @@ public class FeeMenu {
 
         if (controller.addFee(fee))
 
-            System.out.println("Fee Record Added Successfully.");
+            ConsolePrinter.success("Fee Record Added Successfully.");
 
         else
 
-            System.out.println("Failed.");
+            ConsolePrinter.error("Failed.");
 
     }
 
@@ -121,51 +112,70 @@ public class FeeMenu {
 
         List<Fee> fees = controller.getAllFees();
 
-        for (Fee fee : fees) {
+        if (fees.isEmpty()) {
+            ConsolePrinter.info("No fee records found.");
+            return;
+        }
 
-            System.out.println(fee);
+        TablePrinter.heading("ID", "Student ID", "Total Fee", "Paid Fee", "Balance", "Payment Date", "Status");
+
+        for (Fee f : fees) {
+
+            System.out.printf("%-18s%-18s%-18s%-18s%-18s%-18s%-18s%n",
+                    f.getFeeId(),
+                    f.getStudentId(),
+                    f.getTotalFee(),
+                    f.getPaidFee(),
+                    f.getBalance(),
+                    f.getPaymentDate() != null ? f.getPaymentDate() : "N/A",
+                    f.getStatus());
 
         }
+
+        TablePrinter.line();
 
     }
 
     private void searchFee() {
 
-        System.out.print("Fee ID : ");
+        int id = InputUtil.readInt("Fee ID : ");
 
-        int id = Integer.parseInt(scanner.nextLine());
+        Fee f = controller.getFeeById(id);
 
-        Fee fee = controller.getFeeById(id);
+        if (f != null) {
 
-        if (fee != null)
+            TablePrinter.heading("ID", "Student ID", "Total Fee", "Paid Fee", "Balance", "Payment Date", "Status");
+            System.out.printf("%-18s%-18s%-18s%-18s%-18s%-18s%-18s%n",
+                    f.getFeeId(),
+                    f.getStudentId(),
+                    f.getTotalFee(),
+                    f.getPaidFee(),
+                    f.getBalance(),
+                    f.getPaymentDate() != null ? f.getPaymentDate() : "N/A",
+                    f.getStatus());
+            TablePrinter.line();
 
-            System.out.println(fee);
+        } else
 
-        else
-
-            System.out.println("Fee Record Not Found.");
+            ConsolePrinter.error("Fee Record Not Found.");
 
     }
 
     private void updateFee() {
 
-        System.out.print("Fee ID : ");
-
-        int id = Integer.parseInt(scanner.nextLine());
+        int id = InputUtil.readInt("Fee ID : ");
 
         Fee fee = controller.getFeeById(id);
 
         if (fee == null) {
 
-            System.out.println("Fee Record Not Found.");
+            ConsolePrinter.error("Fee Record Not Found.");
 
             return;
 
         }
 
-        System.out.print("Paid Fee : ");
-
-        fee.setPaidFee(Double.parseDouble(scanner.nextLine()));
+        fee.setPaidFee(InputUtil.readDouble("Paid Fee : "));
 
         fee.setBalance(fee.getTotalFee() - fee.getPaidFee());
 
@@ -187,43 +197,55 @@ public class FeeMenu {
 
         if (controller.updateFee(fee))
 
-            System.out.println("Updated Successfully.");
+            ConsolePrinter.success("Updated Successfully.");
 
         else
 
-            System.out.println("Update Failed.");
+            ConsolePrinter.error("Update Failed.");
 
     }
 
     private void deleteFee() {
 
-        System.out.print("Fee ID : ");
-
-        int id = Integer.parseInt(scanner.nextLine());
+        int id = InputUtil.readInt("Fee ID : ");
 
         if (controller.deleteFee(id))
 
-            System.out.println("Deleted Successfully.");
+            ConsolePrinter.success("Deleted Successfully.");
 
         else
 
-            System.out.println("Delete Failed.");
+            ConsolePrinter.error("Delete Failed.");
 
     }
 
     private void feeByStudent() {
 
-        System.out.print("Student ID : ");
-
-        int studentId = Integer.parseInt(scanner.nextLine());
+        int studentId = InputUtil.readInt("Student ID : ");
 
         List<Fee> fees = controller.getFeeByStudent(studentId);
 
-        for (Fee fee : fees) {
+        if (fees.isEmpty()) {
+            ConsolePrinter.info("No fee records found for this student.");
+            return;
+        }
 
-            System.out.println(fee);
+        TablePrinter.heading("ID", "Student ID", "Total Fee", "Paid Fee", "Balance", "Payment Date", "Status");
+
+        for (Fee f : fees) {
+
+            System.out.printf("%-18s%-18s%-18s%-18s%-18s%-18s%-18s%n",
+                    f.getFeeId(),
+                    f.getStudentId(),
+                    f.getTotalFee(),
+                    f.getPaidFee(),
+                    f.getBalance(),
+                    f.getPaymentDate() != null ? f.getPaymentDate() : "N/A",
+                    f.getStatus());
 
         }
+
+        TablePrinter.line();
 
     }
 

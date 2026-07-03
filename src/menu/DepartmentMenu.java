@@ -2,17 +2,16 @@ package menu;
 
 import controller.DepartmentController;
 import java.util.List;
-import java.util.Scanner;
 import model.Department;
+import util.InputUtil;
+import util.ConsolePrinter;
+import util.TablePrinter;
 
 public class DepartmentMenu {
 
-    private final Scanner scanner;
     private final DepartmentController controller;
 
     public DepartmentMenu() {
-
-        scanner = new Scanner(System.in);
 
         controller = new DepartmentController();
 
@@ -22,18 +21,15 @@ public class DepartmentMenu {
 
         while (true) {
 
-            System.out.println("\n===============================");
-            System.out.println(" Department Management ");
-            System.out.println("===============================");
+            ConsolePrinter.title("Department Management");
             System.out.println("1. Add Department");
             System.out.println("2. View Departments");
             System.out.println("3. Search Department");
             System.out.println("4. Update Department");
             System.out.println("5. Delete Department");
             System.out.println("0. Back");
-            System.out.print("Enter Choice : ");
 
-            int choice = Integer.parseInt(scanner.nextLine());
+            int choice = InputUtil.readInt("Enter Choice : ");
 
             switch (choice) {
 
@@ -61,148 +57,121 @@ public class DepartmentMenu {
                     return;
 
                 default:
-                    System.out.println("Invalid Choice");
+                    ConsolePrinter.warning("Invalid Choice");
             }
 
         }
 
     }
 
-    // -----------------------------
-    // Add Department
-    // -----------------------------
-
     private void addDepartment() {
 
         Department department = new Department();
 
-        System.out.print("Department Name : ");
-        department.setDepartmentName(scanner.nextLine());
-
-        System.out.print("Department Code : ");
-        department.setDepartmentCode(scanner.nextLine());
-
-        System.out.print("HOD Name : ");
-        department.setHodName(scanner.nextLine());
-
+        department.setDepartmentName(InputUtil.readString("Department Name : "));
+        department.setDepartmentCode(InputUtil.readString("Department Code : "));
+        department.setHodName(InputUtil.readString("HOD Name : "));
         department.setStatus("ACTIVE");
 
         if (controller.addDepartment(department))
 
-            System.out.println("Department Added Successfully.");
+            ConsolePrinter.success("Department Added Successfully.");
 
         else
 
-            System.out.println("Failed.");
+            ConsolePrinter.error("Failed.");
 
     }
-
-    // -----------------------------
-    // View All
-    // -----------------------------
 
     private void viewDepartments() {
 
-        List<Department> list =
-                controller.getAllDepartments();
+        List<Department> list = controller.getAllDepartments();
 
-        System.out.println();
+        if (list.isEmpty()) {
+            ConsolePrinter.info("No department records found.");
+            return;
+        }
 
-        for (Department department : list) {
+        TablePrinter.heading("ID", "Code", "Name", "HOD", "Status");
 
-            System.out.println(department);
+        for (Department d : list) {
+
+            System.out.printf("%-18s%-18s%-18s%-18s%-18s%n",
+                    d.getDepartmentId(),
+                    d.getDepartmentCode(),
+                    d.getDepartmentName(),
+                    d.getHodName() != null ? d.getHodName() : "N/A",
+                    d.getStatus());
 
         }
 
-    }
+        TablePrinter.line();
 
-    // -----------------------------
-    // Search
-    // -----------------------------
+    }
 
     private void searchDepartment() {
 
-        System.out.print("Department ID : ");
+        int id = InputUtil.readInt("Department ID : ");
 
-        int id = Integer.parseInt(scanner.nextLine());
+        Department d = controller.getDepartmentById(id);
 
-        Department department =
-                controller.getDepartmentById(id);
+        if (d != null) {
 
-        if (department != null)
+            TablePrinter.heading("ID", "Code", "Name", "HOD", "Status");
+            System.out.printf("%-18s%-18s%-18s%-18s%-18s%n",
+                    d.getDepartmentId(),
+                    d.getDepartmentCode(),
+                    d.getDepartmentName(),
+                    d.getHodName() != null ? d.getHodName() : "N/A",
+                    d.getStatus());
+            TablePrinter.line();
 
-            System.out.println(department);
+        } else
 
-        else
-
-            System.out.println("Department Not Found.");
+            ConsolePrinter.error("Department Not Found.");
 
     }
 
-    // -----------------------------
-    // Update
-    // -----------------------------
-
     private void updateDepartment() {
 
-        System.out.print("Department ID : ");
+        int id = InputUtil.readInt("Department ID : ");
 
-        int id = Integer.parseInt(scanner.nextLine());
-
-        Department department =
-                controller.getDepartmentById(id);
+        Department department = controller.getDepartmentById(id);
 
         if (department == null) {
 
-            System.out.println("Department Not Found.");
+            ConsolePrinter.error("Department Not Found.");
 
             return;
 
         }
 
-        System.out.print("New Department Name : ");
-
-        department.setDepartmentName(scanner.nextLine());
-
-        System.out.print("New Department Code : ");
-
-        department.setDepartmentCode(scanner.nextLine());
-
-        System.out.print("New HOD : ");
-
-        department.setHodName(scanner.nextLine());
-
-        System.out.print("Status : ");
-
-        department.setStatus(scanner.nextLine());
+        department.setDepartmentName(InputUtil.readString("New Department Name : "));
+        department.setDepartmentCode(InputUtil.readString("New Department Code : "));
+        department.setHodName(InputUtil.readString("New HOD : "));
+        department.setStatus(InputUtil.readString("Status : "));
 
         if (controller.updateDepartment(department))
 
-            System.out.println("Updated Successfully.");
+            ConsolePrinter.success("Updated Successfully.");
 
         else
 
-            System.out.println("Update Failed.");
+            ConsolePrinter.error("Update Failed.");
 
     }
 
-    // -----------------------------
-    // Delete
-    // -----------------------------
-
     private void deleteDepartment() {
 
-        System.out.print("Department ID : ");
-
-        int id = Integer.parseInt(scanner.nextLine());
+        int id = InputUtil.readInt("Department ID : ");
 
         if (controller.deleteDepartment(id))
 
-            System.out.println("Deleted Successfully.");
+            ConsolePrinter.success("Deleted Successfully.");
 
         else
 
-            System.out.println("Delete Failed.");
+            ConsolePrinter.error("Delete Failed.");
 
     }
 

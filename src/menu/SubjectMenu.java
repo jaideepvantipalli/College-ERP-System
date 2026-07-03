@@ -2,18 +2,18 @@ package menu;
 
 import controller.SubjectController;
 import model.Subject;
+import util.InputUtil;
+import util.ConsolePrinter;
+import util.TablePrinter;
 
 import java.util.List;
-import java.util.Scanner;
 
 public class SubjectMenu {
 
-    private final Scanner scanner;
     private final SubjectController controller;
 
     public SubjectMenu() {
 
-        scanner = new Scanner(System.in);
         controller = new SubjectController();
 
     }
@@ -22,9 +22,7 @@ public class SubjectMenu {
 
         while (true) {
 
-            System.out.println("\n================================");
-            System.out.println(" SUBJECT MANAGEMENT ");
-            System.out.println("================================");
+            ConsolePrinter.title("Subject Management");
             System.out.println("1. Add Subject");
             System.out.println("2. View Subjects");
             System.out.println("3. Search Subject");
@@ -34,9 +32,7 @@ public class SubjectMenu {
             System.out.println("7. Subjects By Faculty");
             System.out.println("0. Back");
 
-            System.out.print("Choice : ");
-
-            int choice = Integer.parseInt(scanner.nextLine());
+            int choice = InputUtil.readInt("Choice : ");
 
             switch (choice) {
 
@@ -72,7 +68,7 @@ public class SubjectMenu {
                     return;
 
                 default:
-                    System.out.println("Invalid Choice.");
+                    ConsolePrinter.warning("Invalid Choice.");
 
             }
 
@@ -84,33 +80,21 @@ public class SubjectMenu {
 
         Subject subject = new Subject();
 
-        System.out.print("Subject Code : ");
-        subject.setSubjectCode(scanner.nextLine());
-
-        System.out.print("Subject Name : ");
-        subject.setSubjectName(scanner.nextLine());
-
-        System.out.print("Semester : ");
-        subject.setSemester(Integer.parseInt(scanner.nextLine()));
-
-        System.out.print("Credits : ");
-        subject.setCredits(Integer.parseInt(scanner.nextLine()));
-
-        System.out.print("Department ID : ");
-        subject.setDepartmentId(Integer.parseInt(scanner.nextLine()));
-
-        System.out.print("Faculty ID : ");
-        subject.setFacultyId(Integer.parseInt(scanner.nextLine()));
-
+        subject.setSubjectCode(InputUtil.readString("Subject Code : "));
+        subject.setSubjectName(InputUtil.readString("Subject Name : "));
+        subject.setSemester(InputUtil.readInt("Semester : "));
+        subject.setCredits(InputUtil.readInt("Credits : "));
+        subject.setDepartmentId(InputUtil.readInt("Department ID : "));
+        subject.setFacultyId(InputUtil.readInt("Faculty ID : "));
         subject.setStatus("ACTIVE");
 
         if (controller.addSubject(subject))
 
-            System.out.println("Subject Added Successfully.");
+            ConsolePrinter.success("Subject Added Successfully.");
 
         else
 
-            System.out.println("Failed.");
+            ConsolePrinter.error("Failed.");
 
     }
 
@@ -118,114 +102,160 @@ public class SubjectMenu {
 
         List<Subject> subjects = controller.getAllSubjects();
 
-        for (Subject subject : subjects) {
+        if (subjects.isEmpty()) {
+            ConsolePrinter.info("No subject records found.");
+            return;
+        }
 
-            System.out.println(subject);
+        TablePrinter.heading("ID", "Code", "Name", "Semester", "Credits", "Dept ID", "Faculty ID", "Status");
+
+        for (Subject s : subjects) {
+
+            System.out.printf("%-18s%-18s%-18s%-18s%-18s%-18s%-18s%-18s%n",
+                    s.getSubjectId(),
+                    s.getSubjectCode(),
+                    s.getSubjectName(),
+                    s.getSemester(),
+                    s.getCredits(),
+                    s.getDepartmentId(),
+                    s.getFacultyId() > 0 ? s.getFacultyId() : "Unassigned",
+                    s.getStatus());
 
         }
+
+        TablePrinter.line();
 
     }
 
     private void searchSubject() {
 
-        System.out.print("Subject ID : ");
+        int id = InputUtil.readInt("Subject ID : ");
 
-        int id = Integer.parseInt(scanner.nextLine());
+        Subject s = controller.getSubjectById(id);
 
-        Subject subject = controller.getSubjectById(id);
+        if (s != null) {
 
-        if (subject != null)
+            TablePrinter.heading("ID", "Code", "Name", "Semester", "Credits", "Dept ID", "Faculty ID", "Status");
+            System.out.printf("%-18s%-18s%-18s%-18s%-18s%-18s%-18s%-18s%n",
+                    s.getSubjectId(),
+                    s.getSubjectCode(),
+                    s.getSubjectName(),
+                    s.getSemester(),
+                    s.getCredits(),
+                    s.getDepartmentId(),
+                    s.getFacultyId() > 0 ? s.getFacultyId() : "Unassigned",
+                    s.getStatus());
+            TablePrinter.line();
 
-            System.out.println(subject);
+        } else
 
-        else
-
-            System.out.println("Subject Not Found.");
+            ConsolePrinter.error("Subject Not Found.");
 
     }
 
     private void updateSubject() {
 
-        System.out.print("Subject ID : ");
-
-        int id = Integer.parseInt(scanner.nextLine());
+        int id = InputUtil.readInt("Subject ID : ");
 
         Subject subject = controller.getSubjectById(id);
 
         if (subject == null) {
 
-            System.out.println("Subject Not Found.");
+            ConsolePrinter.error("Subject Not Found.");
 
             return;
 
         }
 
-        System.out.print("New Subject Name : ");
-        subject.setSubjectName(scanner.nextLine());
-
-        System.out.print("Semester : ");
-        subject.setSemester(Integer.parseInt(scanner.nextLine()));
-
-        System.out.print("Credits : ");
-        subject.setCredits(Integer.parseInt(scanner.nextLine()));
+        subject.setSubjectName(InputUtil.readString("New Subject Name : "));
+        subject.setSemester(InputUtil.readInt("Semester : "));
+        subject.setCredits(InputUtil.readInt("Credits : "));
 
         if (controller.updateSubject(subject))
 
-            System.out.println("Updated Successfully.");
+            ConsolePrinter.success("Updated Successfully.");
 
         else
 
-            System.out.println("Update Failed.");
+            ConsolePrinter.error("Update Failed.");
 
     }
 
     private void deleteSubject() {
 
-        System.out.print("Subject ID : ");
-
-        int id = Integer.parseInt(scanner.nextLine());
+        int id = InputUtil.readInt("Subject ID : ");
 
         if (controller.deleteSubject(id))
 
-            System.out.println("Deleted Successfully.");
+            ConsolePrinter.success("Deleted Successfully.");
 
         else
 
-            System.out.println("Delete Failed.");
+            ConsolePrinter.error("Delete Failed.");
 
     }
 
     private void subjectsByDepartment() {
 
-        System.out.print("Department ID : ");
-
-        int departmentId = Integer.parseInt(scanner.nextLine());
+        int departmentId = InputUtil.readInt("Department ID : ");
 
         List<Subject> subjects =
                 controller.getSubjectsByDepartment(departmentId);
 
-        for (Subject subject : subjects) {
+        if (subjects.isEmpty()) {
+            ConsolePrinter.info("No subjects found for this department.");
+            return;
+        }
 
-            System.out.println(subject);
+        TablePrinter.heading("ID", "Code", "Name", "Semester", "Credits", "Dept ID", "Faculty ID", "Status");
+
+        for (Subject s : subjects) {
+
+            System.out.printf("%-18s%-18s%-18s%-18s%-18s%-18s%-18s%-18s%n",
+                    s.getSubjectId(),
+                    s.getSubjectCode(),
+                    s.getSubjectName(),
+                    s.getSemester(),
+                    s.getCredits(),
+                    s.getDepartmentId(),
+                    s.getFacultyId() > 0 ? s.getFacultyId() : "Unassigned",
+                    s.getStatus());
 
         }
+
+        TablePrinter.line();
 
     }
 
     private void subjectsByFaculty() {
 
-        System.out.print("Faculty ID : ");
-
-        int facultyId = Integer.parseInt(scanner.nextLine());
+        int facultyId = InputUtil.readInt("Faculty ID : ");
 
         List<Subject> subjects =
                 controller.getSubjectsByFaculty(facultyId);
 
-        for (Subject subject : subjects) {
+        if (subjects.isEmpty()) {
+            ConsolePrinter.info("No subjects found assigned to this faculty.");
+            return;
+        }
 
-            System.out.println(subject);
+        TablePrinter.heading("ID", "Code", "Name", "Semester", "Credits", "Dept ID", "Faculty ID", "Status");
+
+        for (Subject s : subjects) {
+
+            System.out.printf("%-18s%-18s%-18s%-18s%-18s%-18s%-18s%-18s%n",
+                    s.getSubjectId(),
+                    s.getSubjectCode(),
+                    s.getSubjectName(),
+                    s.getSemester(),
+                    s.getCredits(),
+                    s.getDepartmentId(),
+                    s.getFacultyId() > 0 ? s.getFacultyId() : "Unassigned",
+                    s.getStatus());
 
         }
+
+        TablePrinter.line();
 
     }
 

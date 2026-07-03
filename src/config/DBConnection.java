@@ -22,9 +22,11 @@ public class DBConnection {
 
             if (connection == null || connection.isClosed()) {
 
+                String dbUrl = System.getProperty("db.url", AppConstants.DB_URL);
+
                 connection = DriverManager.getConnection(
 
-                        AppConstants.DB_URL,
+                        dbUrl,
 
                         AppConstants.DB_USERNAME,
 

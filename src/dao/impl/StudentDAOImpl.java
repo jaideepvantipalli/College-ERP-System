@@ -23,45 +23,103 @@ public class StudentDAOImpl implements StudentDAO {
         Student student = new Student();
 
         student.setStudentId(rs.getInt("student_id"));
+
         student.setRollNumber(rs.getString("roll_number"));
+
         student.setFirstName(rs.getString("first_name"));
+
         student.setLastName(rs.getString("last_name"));
+
         student.setGender(rs.getString("gender"));
-        student.setDateOfBirth(rs.getDate("date_of_birth").toLocalDate());
+
+        Date dob = rs.getDate("date_of_birth");
+
+        if (dob != null) {
+
+            student.setDateOfBirth(dob.toLocalDate());
+
+        }
+
         student.setEmail(rs.getString("email"));
+
         student.setPhone(rs.getString("phone"));
+
         student.setDepartmentId(rs.getInt("department_id"));
+
         student.setAcademicYear(rs.getInt("academic_year"));
-        student.setSection(rs.getString("section").charAt(0));
+
+        String sec = rs.getString("section");
+
+        if (sec != null && !sec.isEmpty()) {
+
+            student.setSection(sec.charAt(0));
+
+        }
+
         student.setAddress(rs.getString("address"));
-        student.setAdmissionDate(rs.getDate("admission_date").toLocalDate());
+
+        Date adm = rs.getDate("admission_date");
+
+        if (adm != null) {
+
+            student.setAdmissionDate(adm.toLocalDate());
+
+        }
+
         student.setStatus(rs.getString("status"));
 
         return student;
+
     }
 
     @Override
+
     public boolean addStudent(Student student) {
 
-        try {
+        try (Connection connection = DBConnection.getConnection();
 
-            Connection connection = DBConnection.getConnection();
-
-            PreparedStatement ps =
-                    connection.prepareStatement(SQLConstants.INSERT_STUDENT);
+             PreparedStatement ps = connection.prepareStatement(SQLConstants.INSERT_STUDENT)) {
 
             ps.setString(1, student.getRollNumber());
+
             ps.setString(2, student.getFirstName());
+
             ps.setString(3, student.getLastName());
+
             ps.setString(4, student.getGender());
-            ps.setDate(5, Date.valueOf(student.getDateOfBirth()));
+
+            if (student.getDateOfBirth() == null) {
+
+                ps.setNull(5, java.sql.Types.DATE);
+
+            } else {
+
+                ps.setDate(5, Date.valueOf(student.getDateOfBirth()));
+
+            }
+
             ps.setString(6, student.getEmail());
+
             ps.setString(7, student.getPhone());
+
             ps.setInt(8, student.getDepartmentId());
+
             ps.setInt(9, student.getAcademicYear());
+
             ps.setString(10, String.valueOf(student.getSection()));
+
             ps.setString(11, student.getAddress());
-            ps.setDate(12, Date.valueOf(student.getAdmissionDate()));
+
+            if (student.getAdmissionDate() == null) {
+
+                ps.setNull(12, java.sql.Types.DATE);
+
+            } else {
+
+                ps.setDate(12, Date.valueOf(student.getAdmissionDate()));
+
+            }
+
             ps.setString(13, student.getStatus());
 
             return ps.executeUpdate() > 0;
@@ -73,21 +131,20 @@ public class StudentDAOImpl implements StudentDAO {
         }
 
         return false;
+
     }
 
     @Override
+
     public List<Student> getAllStudents() {
 
         List<Student> students = new ArrayList<>();
 
-        try {
+        try (Connection connection = DBConnection.getConnection();
 
-            Connection connection = DBConnection.getConnection();
+             PreparedStatement ps = connection.prepareStatement(SQLConstants.GET_ALL_STUDENTS);
 
-            PreparedStatement ps =
-                    connection.prepareStatement(SQLConstants.GET_ALL_STUDENTS);
-
-            ResultSet rs = ps.executeQuery();
+             ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
 
@@ -102,25 +159,26 @@ public class StudentDAOImpl implements StudentDAO {
         }
 
         return students;
+
     }
 
     @Override
+
     public Student getStudentById(int studentId) {
 
-        try {
+        try (Connection connection = DBConnection.getConnection();
 
-            Connection connection = DBConnection.getConnection();
-
-            PreparedStatement ps =
-                    connection.prepareStatement(SQLConstants.GET_STUDENT_BY_ID);
+             PreparedStatement ps = connection.prepareStatement(SQLConstants.GET_STUDENT_BY_ID)) {
 
             ps.setInt(1, studentId);
 
-            ResultSet rs = ps.executeQuery();
+            try (ResultSet rs = ps.executeQuery()) {
 
-            if (rs.next()) {
+                if (rs.next()) {
 
-                return mapStudent(rs);
+                    return mapStudent(rs);
+
+                }
 
             }
 
@@ -131,27 +189,28 @@ public class StudentDAOImpl implements StudentDAO {
         }
 
         return null;
+
     }
 
     @Override
+
     public List<Student> getStudentsByDepartment(int departmentId) {
 
         List<Student> students = new ArrayList<>();
 
-        try {
+        try (Connection connection = DBConnection.getConnection();
 
-            Connection connection = DBConnection.getConnection();
-
-            PreparedStatement ps = connection.prepareStatement(
-                    SQLConstants.GET_STUDENTS_BY_DEPARTMENT);
+             PreparedStatement ps = connection.prepareStatement(SQLConstants.GET_STUDENTS_BY_DEPARTMENT)) {
 
             ps.setInt(1, departmentId);
 
-            ResultSet rs = ps.executeQuery();
+            try (ResultSet rs = ps.executeQuery()) {
 
-            while (rs.next()) {
+                while (rs.next()) {
 
-                students.add(mapStudent(rs));
+                    students.add(mapStudent(rs));
+
+                }
 
             }
 
@@ -162,31 +221,59 @@ public class StudentDAOImpl implements StudentDAO {
         }
 
         return students;
+
     }
 
     @Override
+
     public boolean updateStudent(Student student) {
 
-        try {
+        try (Connection connection = DBConnection.getConnection();
 
-            Connection connection = DBConnection.getConnection();
-
-            PreparedStatement ps =
-                    connection.prepareStatement(SQLConstants.UPDATE_STUDENT);
+             PreparedStatement ps = connection.prepareStatement(SQLConstants.UPDATE_STUDENT)) {
 
             ps.setString(1, student.getRollNumber());
+
             ps.setString(2, student.getFirstName());
+
             ps.setString(3, student.getLastName());
+
             ps.setString(4, student.getGender());
-            ps.setDate(5, Date.valueOf(student.getDateOfBirth()));
+
+            if (student.getDateOfBirth() == null) {
+
+                ps.setNull(5, java.sql.Types.DATE);
+
+            } else {
+
+                ps.setDate(5, Date.valueOf(student.getDateOfBirth()));
+
+            }
+
             ps.setString(6, student.getEmail());
+
             ps.setString(7, student.getPhone());
+
             ps.setInt(8, student.getDepartmentId());
+
             ps.setInt(9, student.getAcademicYear());
+
             ps.setString(10, String.valueOf(student.getSection()));
+
             ps.setString(11, student.getAddress());
-            ps.setDate(12, Date.valueOf(student.getAdmissionDate()));
+
+            if (student.getAdmissionDate() == null) {
+
+                ps.setNull(12, java.sql.Types.DATE);
+
+            } else {
+
+                ps.setDate(12, Date.valueOf(student.getAdmissionDate()));
+
+            }
+
             ps.setString(13, student.getStatus());
+
             ps.setInt(14, student.getStudentId());
 
             return ps.executeUpdate() > 0;
@@ -198,17 +285,16 @@ public class StudentDAOImpl implements StudentDAO {
         }
 
         return false;
+
     }
 
     @Override
+
     public boolean deleteStudent(int studentId) {
 
-        try {
+        try (Connection connection = DBConnection.getConnection();
 
-            Connection connection = DBConnection.getConnection();
-
-            PreparedStatement ps =
-                    connection.prepareStatement(SQLConstants.DELETE_STUDENT);
+             PreparedStatement ps = connection.prepareStatement(SQLConstants.DELETE_STUDENT)) {
 
             ps.setInt(1, studentId);
 
@@ -221,6 +307,7 @@ public class StudentDAOImpl implements StudentDAO {
         }
 
         return false;
+
     }
 
 }

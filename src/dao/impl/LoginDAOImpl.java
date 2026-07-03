@@ -14,54 +14,46 @@ import java.sql.SQLException;
 public class LoginDAOImpl implements LoginDAO {
 
     @Override
-    public User login(String username,
-                      String password) {
 
-        User user = null;
+    public User login(String username, String password) {
 
-        try {
+        try (Connection connection = DBConnection.getConnection();
 
-            Connection connection =
-                    DBConnection.getConnection();
-
-            PreparedStatement ps =
-                    connection.prepareStatement(SQLConstants.LOGIN);
+             PreparedStatement ps = connection.prepareStatement(SQLConstants.LOGIN)) {
 
             ps.setString(1, username);
 
             ps.setString(2, password);
 
-            ResultSet rs = ps.executeQuery();
+            try (ResultSet rs = ps.executeQuery()) {
 
-            if (rs.next()) {
+                if (rs.next()) {
 
-                user = new User();
+                    User user = new User();
 
-                user.setUserId(rs.getInt("user_id"));
+                    user.setUserId(rs.getInt("user_id"));
 
-                user.setUsername(rs.getString("username"));
+                    user.setUsername(rs.getString("username"));
 
-                user.setPassword(rs.getString("password"));
+                    user.setPassword(rs.getString("password"));
 
-                user.setRole(
-                        UserRole.valueOf(
-                                rs.getString("role")
-                        )
-                );
+                    user.setRole(UserRole.valueOf(rs.getString("role")));
 
-                user.setStatus(rs.getString("status"));
+                    user.setStatus(rs.getString("status"));
+
+                    return user;
+
+                }
 
             }
 
-        }
-
-        catch (SQLException e) {
+        } catch (SQLException e) {
 
             e.printStackTrace();
 
         }
 
-        return user;
+        return null;
 
     }
 

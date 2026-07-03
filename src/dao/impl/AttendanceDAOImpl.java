@@ -35,30 +35,26 @@ public class AttendanceDAOImpl implements AttendanceDAO {
     }
 
     @Override
+
     public boolean addAttendance(Attendance attendance) {
 
-        try {
+        try (Connection connection = DBConnection.getConnection();
 
-            Connection connection =
-                    DBConnection.getConnection();
-
-            PreparedStatement ps =
-                    connection.prepareStatement(
-                            SQLConstants.INSERT_ATTENDANCE);
+             PreparedStatement ps = connection.prepareStatement(SQLConstants.INSERT_ATTENDANCE)) {
 
             ps.setInt(1, attendance.getStudentId());
+
             ps.setInt(2, attendance.getSubjectId());
+
             ps.setInt(3, attendance.getFacultyId());
-            ps.setDate(4,
-                    Date.valueOf(attendance.getAttendanceDate()));
-            ps.setString(5,
-                    attendance.getStatus().name());
+
+            ps.setDate(4, Date.valueOf(attendance.getAttendanceDate()));
+
+            ps.setString(5, attendance.getStatus().name());
 
             return ps.executeUpdate() > 0;
 
-        }
-
-        catch (SQLException e) {
+        } catch (SQLException e) {
 
             e.printStackTrace();
 
@@ -69,21 +65,16 @@ public class AttendanceDAOImpl implements AttendanceDAO {
     }
 
     @Override
+
     public List<Attendance> getAllAttendance() {
 
-        List<Attendance> attendanceList =
-                new ArrayList<>();
+        List<Attendance> attendanceList = new ArrayList<>();
 
-        try {
+        try (Connection connection = DBConnection.getConnection();
 
-            Connection connection =
-                    DBConnection.getConnection();
+             PreparedStatement ps = connection.prepareStatement(SQLConstants.GET_ALL_ATTENDANCE);
 
-            PreparedStatement ps =
-                    connection.prepareStatement(
-                            SQLConstants.GET_ALL_ATTENDANCE);
-
-            ResultSet rs = ps.executeQuery();
+             ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
 
@@ -91,9 +82,7 @@ public class AttendanceDAOImpl implements AttendanceDAO {
 
             }
 
-        }
-
-        catch (SQLException e) {
+        } catch (SQLException e) {
 
             e.printStackTrace();
 
@@ -104,30 +93,26 @@ public class AttendanceDAOImpl implements AttendanceDAO {
     }
 
     @Override
+
     public Attendance getAttendanceById(int attendanceId) {
 
-        try {
+        try (Connection connection = DBConnection.getConnection();
 
-            Connection connection =
-                    DBConnection.getConnection();
-
-            PreparedStatement ps =
-                    connection.prepareStatement(
-                            SQLConstants.GET_ATTENDANCE_BY_ID);
+             PreparedStatement ps = connection.prepareStatement(SQLConstants.GET_ATTENDANCE_BY_ID)) {
 
             ps.setInt(1, attendanceId);
 
-            ResultSet rs = ps.executeQuery();
+            try (ResultSet rs = ps.executeQuery()) {
 
-            if (rs.next()) {
+                if (rs.next()) {
 
-                return mapAttendance(rs);
+                    return mapAttendance(rs);
+
+                }
 
             }
 
-        }
-
-        catch (SQLException e) {
+        } catch (SQLException e) {
 
             e.printStackTrace();
 
@@ -138,33 +123,28 @@ public class AttendanceDAOImpl implements AttendanceDAO {
     }
 
     @Override
+
     public List<Attendance> getAttendanceByStudent(int studentId) {
 
-        List<Attendance> attendanceList =
-                new ArrayList<>();
+        List<Attendance> attendanceList = new ArrayList<>();
 
-        try {
+        try (Connection connection = DBConnection.getConnection();
 
-            Connection connection =
-                    DBConnection.getConnection();
-
-            PreparedStatement ps =
-                    connection.prepareStatement(
-                            SQLConstants.GET_ATTENDANCE_BY_STUDENT);
+             PreparedStatement ps = connection.prepareStatement(SQLConstants.GET_ATTENDANCE_BY_STUDENT)) {
 
             ps.setInt(1, studentId);
 
-            ResultSet rs = ps.executeQuery();
+            try (ResultSet rs = ps.executeQuery()) {
 
-            while (rs.next()) {
+                while (rs.next()) {
 
-                attendanceList.add(mapAttendance(rs));
+                    attendanceList.add(mapAttendance(rs));
+
+                }
 
             }
 
-        }
-
-        catch (SQLException e) {
+        } catch (SQLException e) {
 
             e.printStackTrace();
 
@@ -175,32 +155,28 @@ public class AttendanceDAOImpl implements AttendanceDAO {
     }
 
     @Override
+
     public boolean updateAttendance(Attendance attendance) {
 
-        try {
+        try (Connection connection = DBConnection.getConnection();
 
-            Connection connection =
-                    DBConnection.getConnection();
-
-            PreparedStatement ps =
-                    connection.prepareStatement(
-                            SQLConstants.UPDATE_ATTENDANCE);
+             PreparedStatement ps = connection.prepareStatement(SQLConstants.UPDATE_ATTENDANCE)) {
 
             ps.setInt(1, attendance.getStudentId());
+
             ps.setInt(2, attendance.getSubjectId());
+
             ps.setInt(3, attendance.getFacultyId());
-            ps.setDate(4,
-                    Date.valueOf(attendance.getAttendanceDate()));
-            ps.setString(5,
-                    attendance.getStatus().name());
-            ps.setInt(6,
-                    attendance.getAttendanceId());
+
+            ps.setDate(4, Date.valueOf(attendance.getAttendanceDate()));
+
+            ps.setString(5, attendance.getStatus().name());
+
+            ps.setInt(6, attendance.getAttendanceId());
 
             return ps.executeUpdate() > 0;
 
-        }
-
-        catch (SQLException e) {
+        } catch (SQLException e) {
 
             e.printStackTrace();
 
@@ -211,24 +187,18 @@ public class AttendanceDAOImpl implements AttendanceDAO {
     }
 
     @Override
+
     public boolean deleteAttendance(int attendanceId) {
 
-        try {
+        try (Connection connection = DBConnection.getConnection();
 
-            Connection connection =
-                    DBConnection.getConnection();
-
-            PreparedStatement ps =
-                    connection.prepareStatement(
-                            SQLConstants.DELETE_ATTENDANCE);
+             PreparedStatement ps = connection.prepareStatement(SQLConstants.DELETE_ATTENDANCE)) {
 
             ps.setInt(1, attendanceId);
 
             return ps.executeUpdate() > 0;
 
-        }
-
-        catch (SQLException e) {
+        } catch (SQLException e) {
 
             e.printStackTrace();
 

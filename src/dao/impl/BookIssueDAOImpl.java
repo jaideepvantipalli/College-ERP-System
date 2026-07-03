@@ -36,18 +36,19 @@ public class BookIssueDAOImpl implements BookIssueDAO {
     }
 
     @Override
+
     public boolean issueBook(BookIssue issue){
 
-        try{
+        try (Connection connection = DBConnection.getConnection();
 
-            Connection connection=DBConnection.getConnection();
-
-            PreparedStatement ps=
-                    connection.prepareStatement(SQLConstants.ISSUE_BOOK);
+             PreparedStatement ps = connection.prepareStatement(SQLConstants.ISSUE_BOOK)) {
 
             ps.setInt(1,issue.getStudentId());
+
             ps.setInt(2,issue.getBookId());
+
             ps.setDate(3,Date.valueOf(issue.getIssueDate()));
+
             ps.setDate(4,Date.valueOf(issue.getDueDate()));
 
             if(issue.getReturnDate()==null)
@@ -62,9 +63,7 @@ public class BookIssueDAOImpl implements BookIssueDAO {
 
             return ps.executeUpdate()>0;
 
-        }
-
-        catch(SQLException e){
+        } catch(SQLException e){
 
             e.printStackTrace();
 
@@ -75,18 +74,16 @@ public class BookIssueDAOImpl implements BookIssueDAO {
     }
 
     @Override
+
     public List<BookIssue> getAllIssuedBooks(){
 
         List<BookIssue> list=new ArrayList<>();
 
-        try{
+        try (Connection connection = DBConnection.getConnection();
 
-            Connection connection=DBConnection.getConnection();
+             PreparedStatement ps = connection.prepareStatement(SQLConstants.GET_ALL_ISSUES);
 
-            PreparedStatement ps=
-                    connection.prepareStatement(SQLConstants.GET_ALL_ISSUES);
-
-            ResultSet rs=ps.executeQuery();
+             ResultSet rs = ps.executeQuery()) {
 
             while(rs.next()){
 
@@ -94,9 +91,7 @@ public class BookIssueDAOImpl implements BookIssueDAO {
 
             }
 
-        }
-
-        catch(SQLException e){
+        } catch(SQLException e){
 
             e.printStackTrace();
 
@@ -107,26 +102,24 @@ public class BookIssueDAOImpl implements BookIssueDAO {
     }
 
     @Override
+
     public BookIssue getIssueById(int issueId){
 
-        try{
+        try (Connection connection = DBConnection.getConnection();
 
-            Connection connection=DBConnection.getConnection();
-
-            PreparedStatement ps=
-                    connection.prepareStatement(SQLConstants.GET_ISSUE_BY_ID);
+             PreparedStatement ps = connection.prepareStatement(SQLConstants.GET_ISSUE_BY_ID)) {
 
             ps.setInt(1,issueId);
 
-            ResultSet rs=ps.executeQuery();
+            try (ResultSet rs = ps.executeQuery()) {
 
-            if(rs.next())
+                if(rs.next())
 
-                return mapIssue(rs);
+                    return mapIssue(rs);
 
-        }
+            }
 
-        catch(SQLException e){
+        } catch(SQLException e){
 
             e.printStackTrace();
 
@@ -137,18 +130,19 @@ public class BookIssueDAOImpl implements BookIssueDAO {
     }
 
     @Override
+
     public boolean updateIssue(BookIssue issue){
 
-        try{
+        try (Connection connection = DBConnection.getConnection();
 
-            Connection connection=DBConnection.getConnection();
-
-            PreparedStatement ps=
-                    connection.prepareStatement(SQLConstants.UPDATE_ISSUE);
+             PreparedStatement ps = connection.prepareStatement(SQLConstants.UPDATE_ISSUE)) {
 
             ps.setInt(1,issue.getStudentId());
+
             ps.setInt(2,issue.getBookId());
+
             ps.setDate(3,Date.valueOf(issue.getIssueDate()));
+
             ps.setDate(4,Date.valueOf(issue.getDueDate()));
 
             if(issue.getReturnDate()==null)
@@ -160,13 +154,12 @@ public class BookIssueDAOImpl implements BookIssueDAO {
                 ps.setDate(5,Date.valueOf(issue.getReturnDate()));
 
             ps.setDouble(6,issue.getFine());
+
             ps.setInt(7,issue.getIssueId());
 
             return ps.executeUpdate()>0;
 
-        }
-
-        catch(SQLException e){
+        } catch(SQLException e){
 
             e.printStackTrace();
 
@@ -177,22 +170,18 @@ public class BookIssueDAOImpl implements BookIssueDAO {
     }
 
     @Override
+
     public boolean deleteIssue(int issueId){
 
-        try{
+        try (Connection connection = DBConnection.getConnection();
 
-            Connection connection=DBConnection.getConnection();
-
-            PreparedStatement ps=
-                    connection.prepareStatement(SQLConstants.DELETE_ISSUE);
+             PreparedStatement ps = connection.prepareStatement(SQLConstants.DELETE_ISSUE)) {
 
             ps.setInt(1,issueId);
 
             return ps.executeUpdate()>0;
 
-        }
-
-        catch(SQLException e){
+        } catch(SQLException e){
 
             e.printStackTrace();
 

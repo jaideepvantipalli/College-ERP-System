@@ -34,29 +34,38 @@ public class SubjectDAOImpl implements SubjectDAO {
     }
 
     @Override
+
     public boolean addSubject(Subject subject) {
 
-        try {
+        try (Connection connection = DBConnection.getConnection();
 
-            Connection connection =
-                    DBConnection.getConnection();
-
-            PreparedStatement ps =
-                    connection.prepareStatement(SQLConstants.INSERT_SUBJECT);
+             PreparedStatement ps = connection.prepareStatement(SQLConstants.INSERT_SUBJECT)) {
 
             ps.setString(1, subject.getSubjectCode());
+
             ps.setString(2, subject.getSubjectName());
+
             ps.setInt(3, subject.getSemester());
+
             ps.setInt(4, subject.getCredits());
+
             ps.setInt(5, subject.getDepartmentId());
-            ps.setInt(6, subject.getFacultyId());
+
+            if (subject.getFacultyId() <= 0) {
+
+                ps.setNull(6, java.sql.Types.INTEGER);
+
+            } else {
+
+                ps.setInt(6, subject.getFacultyId());
+
+            }
+
             ps.setString(7, subject.getStatus());
 
             return ps.executeUpdate() > 0;
 
-        }
-
-        catch (SQLException e) {
+        } catch (SQLException e) {
 
             e.printStackTrace();
 
@@ -67,19 +76,16 @@ public class SubjectDAOImpl implements SubjectDAO {
     }
 
     @Override
+
     public List<Subject> getAllSubjects() {
 
         List<Subject> subjects = new ArrayList<>();
 
-        try {
+        try (Connection connection = DBConnection.getConnection();
 
-            Connection connection =
-                    DBConnection.getConnection();
+             PreparedStatement ps = connection.prepareStatement(SQLConstants.GET_ALL_SUBJECTS);
 
-            PreparedStatement ps =
-                    connection.prepareStatement(SQLConstants.GET_ALL_SUBJECTS);
-
-            ResultSet rs = ps.executeQuery();
+             ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
 
@@ -87,9 +93,7 @@ public class SubjectDAOImpl implements SubjectDAO {
 
             }
 
-        }
-
-        catch (SQLException e) {
+        } catch (SQLException e) {
 
             e.printStackTrace();
 
@@ -100,29 +104,26 @@ public class SubjectDAOImpl implements SubjectDAO {
     }
 
     @Override
+
     public Subject getSubjectById(int subjectId) {
 
-        try {
+        try (Connection connection = DBConnection.getConnection();
 
-            Connection connection =
-                    DBConnection.getConnection();
-
-            PreparedStatement ps =
-                    connection.prepareStatement(SQLConstants.GET_SUBJECT_BY_ID);
+             PreparedStatement ps = connection.prepareStatement(SQLConstants.GET_SUBJECT_BY_ID)) {
 
             ps.setInt(1, subjectId);
 
-            ResultSet rs = ps.executeQuery();
+            try (ResultSet rs = ps.executeQuery()) {
 
-            if (rs.next()) {
+                if (rs.next()) {
 
-                return mapSubject(rs);
+                    return mapSubject(rs);
+
+                }
 
             }
 
-        }
-
-        catch (SQLException e) {
+        } catch (SQLException e) {
 
             e.printStackTrace();
 
@@ -133,31 +134,28 @@ public class SubjectDAOImpl implements SubjectDAO {
     }
 
     @Override
+
     public List<Subject> getSubjectsByDepartment(int departmentId) {
 
         List<Subject> subjects = new ArrayList<>();
 
-        try {
+        try (Connection connection = DBConnection.getConnection();
 
-            Connection connection =
-                    DBConnection.getConnection();
-
-            PreparedStatement ps =
-                    connection.prepareStatement(SQLConstants.GET_SUBJECTS_BY_DEPARTMENT);
+             PreparedStatement ps = connection.prepareStatement(SQLConstants.GET_SUBJECTS_BY_DEPARTMENT)) {
 
             ps.setInt(1, departmentId);
 
-            ResultSet rs = ps.executeQuery();
+            try (ResultSet rs = ps.executeQuery()) {
 
-            while (rs.next()) {
+                while (rs.next()) {
 
-                subjects.add(mapSubject(rs));
+                    subjects.add(mapSubject(rs));
+
+                }
 
             }
 
-        }
-
-        catch (SQLException e) {
+        } catch (SQLException e) {
 
             e.printStackTrace();
 
@@ -168,31 +166,28 @@ public class SubjectDAOImpl implements SubjectDAO {
     }
 
     @Override
+
     public List<Subject> getSubjectsByFaculty(int facultyId) {
 
         List<Subject> subjects = new ArrayList<>();
 
-        try {
+        try (Connection connection = DBConnection.getConnection();
 
-            Connection connection =
-                    DBConnection.getConnection();
-
-            PreparedStatement ps =
-                    connection.prepareStatement(SQLConstants.GET_SUBJECTS_BY_FACULTY);
+             PreparedStatement ps = connection.prepareStatement(SQLConstants.GET_SUBJECTS_BY_FACULTY)) {
 
             ps.setInt(1, facultyId);
 
-            ResultSet rs = ps.executeQuery();
+            try (ResultSet rs = ps.executeQuery()) {
 
-            while (rs.next()) {
+                while (rs.next()) {
 
-                subjects.add(mapSubject(rs));
+                    subjects.add(mapSubject(rs));
+
+                }
 
             }
 
-        }
-
-        catch (SQLException e) {
+        } catch (SQLException e) {
 
             e.printStackTrace();
 
@@ -203,30 +198,40 @@ public class SubjectDAOImpl implements SubjectDAO {
     }
 
     @Override
+
     public boolean updateSubject(Subject subject) {
 
-        try {
+        try (Connection connection = DBConnection.getConnection();
 
-            Connection connection =
-                    DBConnection.getConnection();
-
-            PreparedStatement ps =
-                    connection.prepareStatement(SQLConstants.UPDATE_SUBJECT);
+             PreparedStatement ps = connection.prepareStatement(SQLConstants.UPDATE_SUBJECT)) {
 
             ps.setString(1, subject.getSubjectCode());
+
             ps.setString(2, subject.getSubjectName());
+
             ps.setInt(3, subject.getSemester());
+
             ps.setInt(4, subject.getCredits());
+
             ps.setInt(5, subject.getDepartmentId());
-            ps.setInt(6, subject.getFacultyId());
+
+            if (subject.getFacultyId() <= 0) {
+
+                ps.setNull(6, java.sql.Types.INTEGER);
+
+            } else {
+
+                ps.setInt(6, subject.getFacultyId());
+
+            }
+
             ps.setString(7, subject.getStatus());
+
             ps.setInt(8, subject.getSubjectId());
 
             return ps.executeUpdate() > 0;
 
-        }
-
-        catch (SQLException e) {
+        } catch (SQLException e) {
 
             e.printStackTrace();
 
@@ -237,23 +242,18 @@ public class SubjectDAOImpl implements SubjectDAO {
     }
 
     @Override
+
     public boolean deleteSubject(int subjectId) {
 
-        try {
+        try (Connection connection = DBConnection.getConnection();
 
-            Connection connection =
-                    DBConnection.getConnection();
-
-            PreparedStatement ps =
-                    connection.prepareStatement(SQLConstants.DELETE_SUBJECT);
+             PreparedStatement ps = connection.prepareStatement(SQLConstants.DELETE_SUBJECT)) {
 
             ps.setInt(1, subjectId);
 
             return ps.executeUpdate() > 0;
 
-        }
-
-        catch (SQLException e) {
+        } catch (SQLException e) {
 
             e.printStackTrace();
 

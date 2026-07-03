@@ -29,30 +29,30 @@ public class BookDAOImpl implements BookDAO {
     }
 
     @Override
+
     public boolean addBook(Book book) {
 
-        try {
+        try (Connection connection = DBConnection.getConnection();
 
-            Connection connection =
-                    DBConnection.getConnection();
-
-            PreparedStatement ps =
-                    connection.prepareStatement(
-                            SQLConstants.INSERT_BOOK);
+             PreparedStatement ps = connection.prepareStatement(SQLConstants.INSERT_BOOK)) {
 
             ps.setString(1, book.getIsbn());
+
             ps.setString(2, book.getTitle());
+
             ps.setString(3, book.getAuthor());
+
             ps.setString(4, book.getPublisher());
+
             ps.setString(5, book.getCategory());
+
             ps.setInt(6, book.getQuantity());
+
             ps.setInt(7, book.getAvailableQuantity());
 
             return ps.executeUpdate() > 0;
 
-        }
-
-        catch (SQLException e) {
+        } catch (SQLException e) {
 
             e.printStackTrace();
 
@@ -63,20 +63,16 @@ public class BookDAOImpl implements BookDAO {
     }
 
     @Override
+
     public List<Book> getAllBooks() {
 
         List<Book> books = new ArrayList<>();
 
-        try {
+        try (Connection connection = DBConnection.getConnection();
 
-            Connection connection =
-                    DBConnection.getConnection();
+             PreparedStatement ps = connection.prepareStatement(SQLConstants.GET_ALL_BOOKS);
 
-            PreparedStatement ps =
-                    connection.prepareStatement(
-                            SQLConstants.GET_ALL_BOOKS);
-
-            ResultSet rs = ps.executeQuery();
+             ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
 
@@ -84,9 +80,7 @@ public class BookDAOImpl implements BookDAO {
 
             }
 
-        }
-
-        catch (SQLException e) {
+        } catch (SQLException e) {
 
             e.printStackTrace();
 
@@ -97,30 +91,26 @@ public class BookDAOImpl implements BookDAO {
     }
 
     @Override
+
     public Book getBookById(int bookId) {
 
-        try {
+        try (Connection connection = DBConnection.getConnection();
 
-            Connection connection =
-                    DBConnection.getConnection();
-
-            PreparedStatement ps =
-                    connection.prepareStatement(
-                            SQLConstants.GET_BOOK_BY_ID);
+             PreparedStatement ps = connection.prepareStatement(SQLConstants.GET_BOOK_BY_ID)) {
 
             ps.setInt(1, bookId);
 
-            ResultSet rs = ps.executeQuery();
+            try (ResultSet rs = ps.executeQuery()) {
 
-            if (rs.next()) {
+                if (rs.next()) {
 
-                return mapBook(rs);
+                    return mapBook(rs);
+
+                }
 
             }
 
-        }
-
-        catch (SQLException e) {
+        } catch (SQLException e) {
 
             e.printStackTrace();
 
@@ -131,31 +121,32 @@ public class BookDAOImpl implements BookDAO {
     }
 
     @Override
+
     public boolean updateBook(Book book) {
 
-        try {
+        try (Connection connection = DBConnection.getConnection();
 
-            Connection connection =
-                    DBConnection.getConnection();
-
-            PreparedStatement ps =
-                    connection.prepareStatement(
-                            SQLConstants.UPDATE_BOOK);
+             PreparedStatement ps = connection.prepareStatement(SQLConstants.UPDATE_BOOK)) {
 
             ps.setString(1, book.getIsbn());
+
             ps.setString(2, book.getTitle());
+
             ps.setString(3, book.getAuthor());
+
             ps.setString(4, book.getPublisher());
+
             ps.setString(5, book.getCategory());
+
             ps.setInt(6, book.getQuantity());
+
             ps.setInt(7, book.getAvailableQuantity());
+
             ps.setInt(8, book.getBookId());
 
             return ps.executeUpdate() > 0;
 
-        }
-
-        catch (SQLException e) {
+        } catch (SQLException e) {
 
             e.printStackTrace();
 
@@ -166,24 +157,18 @@ public class BookDAOImpl implements BookDAO {
     }
 
     @Override
+
     public boolean deleteBook(int bookId) {
 
-        try {
+        try (Connection connection = DBConnection.getConnection();
 
-            Connection connection =
-                    DBConnection.getConnection();
-
-            PreparedStatement ps =
-                    connection.prepareStatement(
-                            SQLConstants.DELETE_BOOK);
+             PreparedStatement ps = connection.prepareStatement(SQLConstants.DELETE_BOOK)) {
 
             ps.setInt(1, bookId);
 
             return ps.executeUpdate() > 0;
 
-        }
-
-        catch (SQLException e) {
+        } catch (SQLException e) {
 
             e.printStackTrace();
 

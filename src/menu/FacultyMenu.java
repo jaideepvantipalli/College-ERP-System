@@ -2,19 +2,19 @@ package menu;
 
 import controller.FacultyController;
 import model.Faculty;
+import util.InputUtil;
+import util.ValidationUtil;
+import util.ConsolePrinter;
+import util.TablePrinter;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Scanner;
 
 public class FacultyMenu {
 
-    private final Scanner scanner;
     private final FacultyController controller;
 
     public FacultyMenu() {
-
-        scanner = new Scanner(System.in);
 
         controller = new FacultyController();
 
@@ -24,9 +24,7 @@ public class FacultyMenu {
 
         while (true) {
 
-            System.out.println("\n================================");
-            System.out.println(" FACULTY MANAGEMENT ");
-            System.out.println("================================");
+            ConsolePrinter.title("Faculty Management");
             System.out.println("1. Add Faculty");
             System.out.println("2. View Faculty");
             System.out.println("3. Search Faculty");
@@ -35,9 +33,7 @@ public class FacultyMenu {
             System.out.println("6. Faculty By Department");
             System.out.println("0. Back");
 
-            System.out.print("Choice : ");
-
-            int choice = Integer.parseInt(scanner.nextLine());
+            int choice = InputUtil.readInt("Choice : ");
 
             switch (choice) {
 
@@ -69,7 +65,7 @@ public class FacultyMenu {
                     return;
 
                 default:
-                    System.out.println("Invalid Choice.");
+                    ConsolePrinter.warning("Invalid Choice.");
             }
 
         }
@@ -80,39 +76,43 @@ public class FacultyMenu {
 
         Faculty faculty = new Faculty();
 
-        System.out.print("Employee ID : ");
-        faculty.setEmployeeId(scanner.nextLine());
+        faculty.setEmployeeId(InputUtil.readString("Employee ID : "));
 
-        System.out.print("First Name : ");
-        faculty.setFirstName(scanner.nextLine());
+        String firstName = InputUtil.readString("First Name : ");
+        while (!ValidationUtil.isValidName(firstName)) {
+            ConsolePrinter.warning("First Name must be at least 2 characters. Please try again.");
+            firstName = InputUtil.readString("First Name : ");
+        }
+        faculty.setFirstName(firstName);
 
-        System.out.print("Last Name : ");
-        faculty.setLastName(scanner.nextLine());
+        faculty.setLastName(InputUtil.readString("Last Name : "));
 
-        System.out.print("Email : ");
-        faculty.setEmail(scanner.nextLine());
+        String email = InputUtil.readString("Email : ");
+        while (!ValidationUtil.isValidEmail(email)) {
+            ConsolePrinter.warning("Invalid Email format. Please try again.");
+            email = InputUtil.readString("Email : ");
+        }
+        faculty.setEmail(email);
 
-        System.out.print("Phone : ");
-        faculty.setPhone(scanner.nextLine());
+        String phone = InputUtil.readString("Phone : ");
+        while (!ValidationUtil.isValidPhone(phone)) {
+            ConsolePrinter.warning("Phone number must be 10 digits. Please try again.");
+            phone = InputUtil.readString("Phone : ");
+        }
+        faculty.setPhone(phone);
 
-        System.out.print("Designation : ");
-        faculty.setDesignation(scanner.nextLine());
-
-        System.out.print("Department ID : ");
-        faculty.setDepartmentId(Integer.parseInt(scanner.nextLine()));
-
-        System.out.print("Joining Date (yyyy-mm-dd) : ");
-        faculty.setJoiningDate(LocalDate.parse(scanner.nextLine()));
-
+        faculty.setDesignation(InputUtil.readString("Designation : "));
+        faculty.setDepartmentId(InputUtil.readInt("Department ID : "));
+        faculty.setJoiningDate(InputUtil.readDate("Joining Date (yyyy-mm-dd) : "));
         faculty.setStatus("ACTIVE");
 
         if (controller.addFaculty(faculty))
 
-            System.out.println("Faculty Added Successfully.");
+            ConsolePrinter.success("Faculty Added Successfully.");
 
         else
 
-            System.out.println("Failed.");
+            ConsolePrinter.error("Failed.");
 
     }
 
@@ -120,97 +120,143 @@ public class FacultyMenu {
 
         List<Faculty> list = controller.getAllFaculty();
 
-        for (Faculty faculty : list) {
+        if (list.isEmpty()) {
+            ConsolePrinter.info("No faculty records found.");
+            return;
+        }
 
-            System.out.println(faculty);
+        TablePrinter.heading("ID", "Employee ID", "Name", "Email", "Phone", "Designation", "Dept ID", "Joining Date", "Status");
+
+        for (Faculty f : list) {
+
+            System.out.printf("%-18s%-18s%-18s%-18s%-18s%-18s%-18s%-18s%-18s%n",
+                    f.getFacultyId(),
+                    f.getEmployeeId(),
+                    f.getFirstName() + " " + (f.getLastName() != null ? f.getLastName() : ""),
+                    f.getEmail(),
+                    f.getPhone(),
+                    f.getDesignation(),
+                    f.getDepartmentId(),
+                    f.getJoiningDate(),
+                    f.getStatus());
 
         }
+
+        TablePrinter.line();
 
     }
 
     private void searchFaculty() {
 
-        System.out.print("Faculty ID : ");
+        int id = InputUtil.readInt("Faculty ID : ");
 
-        int id = Integer.parseInt(scanner.nextLine());
+        Faculty f = controller.getFacultyById(id);
 
-        Faculty faculty = controller.getFacultyById(id);
+        if (f != null) {
 
-        if (faculty != null)
+            TablePrinter.heading("ID", "Employee ID", "Name", "Email", "Phone", "Designation", "Dept ID", "Joining Date", "Status");
+            System.out.printf("%-18s%-18s%-18s%-18s%-18s%-18s%-18s%-18s%-18s%n",
+                    f.getFacultyId(),
+                    f.getEmployeeId(),
+                    f.getFirstName() + " " + (f.getLastName() != null ? f.getLastName() : ""),
+                    f.getEmail(),
+                    f.getPhone(),
+                    f.getDesignation(),
+                    f.getDepartmentId(),
+                    f.getJoiningDate(),
+                    f.getStatus());
+            TablePrinter.line();
 
-            System.out.println(faculty);
+        } else
 
-        else
-
-            System.out.println("Faculty Not Found.");
+            ConsolePrinter.error("Faculty Not Found.");
 
     }
 
     private void updateFaculty() {
 
-        System.out.print("Faculty ID : ");
-
-        int id = Integer.parseInt(scanner.nextLine());
+        int id = InputUtil.readInt("Faculty ID : ");
 
         Faculty faculty = controller.getFacultyById(id);
 
         if (faculty == null) {
 
-            System.out.println("Faculty Not Found.");
+            ConsolePrinter.error("Faculty Not Found.");
 
             return;
 
         }
 
-        System.out.print("New Email : ");
-        faculty.setEmail(scanner.nextLine());
+        String email = InputUtil.readString("New Email : ");
+        while (!ValidationUtil.isValidEmail(email)) {
+            ConsolePrinter.warning("Invalid Email format. Please try again.");
+            email = InputUtil.readString("New Email : ");
+        }
+        faculty.setEmail(email);
 
-        System.out.print("New Phone : ");
-        faculty.setPhone(scanner.nextLine());
+        String phone = InputUtil.readString("New Phone : ");
+        while (!ValidationUtil.isValidPhone(phone)) {
+            ConsolePrinter.warning("Phone number must be 10 digits. Please try again.");
+            phone = InputUtil.readString("New Phone : ");
+        }
+        faculty.setPhone(phone);
 
-        System.out.print("New Designation : ");
-        faculty.setDesignation(scanner.nextLine());
+        faculty.setDesignation(InputUtil.readString("New Designation : "));
 
         if (controller.updateFaculty(faculty))
 
-            System.out.println("Updated Successfully.");
+            ConsolePrinter.success("Updated Successfully.");
 
         else
 
-            System.out.println("Update Failed.");
+            ConsolePrinter.error("Update Failed.");
 
     }
 
     private void deleteFaculty() {
 
-        System.out.print("Faculty ID : ");
-
-        int id = Integer.parseInt(scanner.nextLine());
+        int id = InputUtil.readInt("Faculty ID : ");
 
         if (controller.deleteFaculty(id))
 
-            System.out.println("Deleted Successfully.");
+            ConsolePrinter.success("Deleted Successfully.");
 
         else
 
-            System.out.println("Delete Failed.");
+            ConsolePrinter.error("Delete Failed.");
 
     }
 
     private void facultyByDepartment() {
 
-        System.out.print("Department ID : ");
-
-        int departmentId = Integer.parseInt(scanner.nextLine());
+        int departmentId = InputUtil.readInt("Department ID : ");
 
         List<Faculty> list =
                 controller.getFacultyByDepartment(departmentId);
 
-        for (Faculty faculty : list) {
+        if (list.isEmpty()) {
+            ConsolePrinter.info("No faculty found in this department.");
+            return;
+        }
 
-            System.out.println(faculty);
+        TablePrinter.heading("ID", "Employee ID", "Name", "Email", "Phone", "Designation", "Dept ID", "Joining Date", "Status");
+
+        for (Faculty f : list) {
+
+            System.out.printf("%-18s%-18s%-18s%-18s%-18s%-18s%-18s%-18s%-18s%n",
+                    f.getFacultyId(),
+                    f.getEmployeeId(),
+                    f.getFirstName() + " " + (f.getLastName() != null ? f.getLastName() : ""),
+                    f.getEmail(),
+                    f.getPhone(),
+                    f.getDesignation(),
+                    f.getDepartmentId(),
+                    f.getJoiningDate(),
+                    f.getStatus());
 
         }
+
+        TablePrinter.line();
 
     }
 

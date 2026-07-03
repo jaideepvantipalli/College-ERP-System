@@ -13,51 +13,60 @@ import java.util.List;
 public class ReportDAOImpl implements ReportDAO {
 
     @Override
+
     public List<AttendanceReport> getAttendanceReport() {
 
         List<AttendanceReport> list = new ArrayList<>();
 
         String sql =
+
                 "SELECT s.student_id, " +
+
                 "CONCAT(s.first_name,' ',s.last_name) student_name, " +
+
                 "sub.subject_name, " +
+
                 "COUNT(a.attendance_id) total_classes, " +
+
                 "SUM(CASE WHEN a.status='PRESENT' THEN 1 ELSE 0 END) present_classes, " +
+
                 "ROUND((SUM(CASE WHEN a.status='PRESENT' THEN 1 ELSE 0 END)/COUNT(*))*100,2) percentage " +
+
                 "FROM attendance a " +
+
                 "JOIN students s ON a.student_id=s.student_id " +
+
                 "JOIN subjects sub ON a.subject_id=sub.subject_id " +
+
                 "GROUP BY s.student_id,sub.subject_name";
 
-        try {
+        try (Connection connection = DBConnection.getConnection();
 
-            Connection connection =
-                    DBConnection.getConnection();
+             PreparedStatement ps = connection.prepareStatement(sql);
 
-            PreparedStatement ps =
-                    connection.prepareStatement(sql);
-
-            ResultSet rs = ps.executeQuery();
+             ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
 
-                AttendanceReport report =
-                        new AttendanceReport();
+                AttendanceReport report = new AttendanceReport();
 
                 report.setStudentId(rs.getInt(1));
+
                 report.setStudentName(rs.getString(2));
+
                 report.setSubjectName(rs.getString(3));
+
                 report.setTotalClasses(rs.getInt(4));
+
                 report.setPresentClasses(rs.getInt(5));
+
                 report.setPercentage(rs.getDouble(6));
 
                 list.add(report);
 
             }
 
-        }
-
-        catch (Exception e) {
+        } catch (Exception e) {
 
             e.printStackTrace();
 
@@ -68,225 +77,255 @@ public class ReportDAOImpl implements ReportDAO {
     }
 
     @Override
-public List<MarksReport> getMarksReport() {
 
-    List<MarksReport> list = new ArrayList<>();
+    public List<MarksReport> getMarksReport() {
 
-    String sql =
-            "SELECT s.student_id," +
-            " CONCAT(s.first_name,' ',s.last_name)," +
-            " sub.subject_name," +
-            " m.total," +
-            " m.grade " +
-            "FROM marks m " +
-            "JOIN students s ON m.student_id=s.student_id " +
-            "JOIN subjects sub ON m.subject_id=sub.subject_id";
+        List<MarksReport> list = new ArrayList<>();
 
-    try {
+        String sql =
 
-        Connection connection = DBConnection.getConnection();
+                "SELECT s.student_id," +
 
-        PreparedStatement ps = connection.prepareStatement(sql);
+                " CONCAT(s.first_name,' ',s.last_name)," +
 
-        ResultSet rs = ps.executeQuery();
+                " sub.subject_name," +
 
-        while (rs.next()) {
+                " m.total," +
 
-            MarksReport report = new MarksReport();
+                " m.grade " +
 
-            report.setStudentId(rs.getInt(1));
-            report.setStudentName(rs.getString(2));
-            report.setSubjectName(rs.getString(3));
-            report.setTotal(rs.getDouble(4));
-            report.setGrade(rs.getString(5));
+                "FROM marks m " +
 
-            list.add(report);
+                "JOIN students s ON m.student_id=s.student_id " +
 
-        }
+                "JOIN subjects sub ON m.subject_id=sub.subject_id";
 
-    } catch (Exception e) {
+        try (Connection connection = DBConnection.getConnection();
 
-        e.printStackTrace();
+             PreparedStatement ps = connection.prepareStatement(sql);
 
-    }
+             ResultSet rs = ps.executeQuery()) {
 
-    return list;
+            while (rs.next()) {
 
-}
-@Override
-public List<FeeReport> getFeeReport() {
+                MarksReport report = new MarksReport();
 
-    List<FeeReport> list = new ArrayList<>();
+                report.setStudentId(rs.getInt(1));
 
-    String sql =
-            "SELECT s.student_id," +
-            " CONCAT(s.first_name,' ',s.last_name)," +
-            " f.total_fee," +
-            " f.paid_fee," +
-            " f.balance " +
-            "FROM fees f " +
-            "JOIN students s ON f.student_id=s.student_id";
+                report.setStudentName(rs.getString(2));
 
-    try {
+                report.setSubjectName(rs.getString(3));
 
-        Connection connection = DBConnection.getConnection();
+                report.setTotal(rs.getDouble(4));
 
-        PreparedStatement ps = connection.prepareStatement(sql);
+                report.setGrade(rs.getString(5));
 
-        ResultSet rs = ps.executeQuery();
-
-        while (rs.next()) {
-
-            FeeReport report = new FeeReport();
-
-            report.setStudentId(rs.getInt(1));
-            report.setStudentName(rs.getString(2));
-            report.setTotalFee(rs.getDouble(3));
-            report.setPaidFee(rs.getDouble(4));
-            report.setBalance(rs.getDouble(5));
-
-            list.add(report);
-
-        }
-
-    } catch (Exception e) {
-
-        e.printStackTrace();
-
-    }
-
-    return list;
-
-}
-
-@Override
-public List<LibraryReport> getLibraryReport() {
-
-    List<LibraryReport> list = new ArrayList<>();
-
-    String sql =
-            "SELECT bi.issue_id," +
-            " CONCAT(s.first_name,' ',s.last_name)," +
-            " b.title," +
-            " bi.issue_date," +
-            " bi.due_date," +
-            " bi.return_date," +
-            " bi.fine " +
-            "FROM book_issues bi " +
-            "JOIN students s ON bi.student_id=s.student_id " +
-            "JOIN books b ON bi.book_id=b.book_id";
-
-    try {
-
-        Connection connection = DBConnection.getConnection();
-
-        PreparedStatement ps = connection.prepareStatement(sql);
-
-        ResultSet rs = ps.executeQuery();
-
-        while (rs.next()) {
-
-            LibraryReport report = new LibraryReport();
-
-            report.setIssueId(rs.getInt(1));
-            report.setStudentName(rs.getString(2));
-            report.setBookTitle(rs.getString(3));
-            report.setIssueDate(rs.getDate(4).toLocalDate());
-            report.setDueDate(rs.getDate(5).toLocalDate());
-
-            if (rs.getDate(6) != null) {
-
-                report.setReturnDate(
-                        rs.getDate(6).toLocalDate());
+                list.add(report);
 
             }
 
-            report.setFine(rs.getDouble(7));
+        } catch (Exception e) {
 
-            list.add(report);
+            e.printStackTrace();
 
         }
 
-    } catch (Exception e) {
-
-        e.printStackTrace();
+        return list;
 
     }
 
-    return list;
+    @Override
 
-}
+    public List<FeeReport> getFeeReport() {
 
-@Override
-public DashboardReport getDashboardReport() {
+        List<FeeReport> list = new ArrayList<>();
 
-    DashboardReport report =
-            new DashboardReport();
+        String sql =
 
-    try {
+                "SELECT s.student_id," +
 
-        Connection connection =
-                DBConnection.getConnection();
+                " CONCAT(s.first_name,' ',s.last_name)," +
 
-        PreparedStatement ps;
+                " f.total_fee," +
 
-        ResultSet rs;
+                " f.paid_fee," +
 
-        ps = connection.prepareStatement(
-                "SELECT COUNT(*) FROM students");
+                " f.balance " +
 
-        rs = ps.executeQuery();
+                "FROM fees f " +
 
-        if (rs.next())
+                "JOIN students s ON f.student_id=s.student_id";
 
-            report.setTotalStudents(rs.getInt(1));
+        try (Connection connection = DBConnection.getConnection();
 
-        ps = connection.prepareStatement(
-                "SELECT COUNT(*) FROM faculty");
+             PreparedStatement ps = connection.prepareStatement(sql);
 
-        rs = ps.executeQuery();
+             ResultSet rs = ps.executeQuery()) {
 
-        if (rs.next())
+            while (rs.next()) {
 
-            report.setTotalFaculty(rs.getInt(1));
+                FeeReport report = new FeeReport();
 
-        ps = connection.prepareStatement(
-                "SELECT COUNT(*) FROM departments");
+                report.setStudentId(rs.getInt(1));
 
-        rs = ps.executeQuery();
+                report.setStudentName(rs.getString(2));
 
-        if (rs.next())
+                report.setTotalFee(rs.getDouble(3));
 
-            report.setTotalDepartments(rs.getInt(1));
+                report.setPaidFee(rs.getDouble(4));
 
-        ps = connection.prepareStatement(
-                "SELECT COUNT(*) FROM subjects");
+                report.setBalance(rs.getDouble(5));
 
-        rs = ps.executeQuery();
+                list.add(report);
 
-        if (rs.next())
+            }
 
-            report.setTotalSubjects(rs.getInt(1));
+        } catch (Exception e) {
 
-        ps = connection.prepareStatement(
-                "SELECT COUNT(*) FROM books");
+            e.printStackTrace();
 
-        rs = ps.executeQuery();
+        }
 
-        if (rs.next())
-
-            report.setTotalBooks(rs.getInt(1));
+        return list;
 
     }
 
-    catch (Exception e) {
+    @Override
 
-        e.printStackTrace();
+    public List<LibraryReport> getLibraryReport() {
+
+        List<LibraryReport> list = new ArrayList<>();
+
+        String sql =
+
+                "SELECT bi.issue_id," +
+
+                " CONCAT(s.first_name,' ',s.last_name)," +
+
+                " b.title," +
+
+                " bi.issue_date," +
+
+                " bi.due_date," +
+
+                " bi.return_date," +
+
+                " bi.fine " +
+
+                "FROM book_issues bi " +
+
+                "JOIN students s ON bi.student_id=s.student_id " +
+
+                "JOIN books b ON bi.book_id=b.book_id";
+
+        try (Connection connection = DBConnection.getConnection();
+
+             PreparedStatement ps = connection.prepareStatement(sql);
+
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+
+                LibraryReport report = new LibraryReport();
+
+                report.setIssueId(rs.getInt(1));
+
+                report.setStudentName(rs.getString(2));
+
+                report.setBookTitle(rs.getString(3));
+
+                report.setIssueDate(rs.getDate(4).toLocalDate());
+
+                report.setDueDate(rs.getDate(5).toLocalDate());
+
+                if (rs.getDate(6) != null) {
+
+                    report.setReturnDate(rs.getDate(6).toLocalDate());
+
+                }
+
+                report.setFine(rs.getDouble(7));
+
+                list.add(report);
+
+            }
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+        }
+
+        return list;
 
     }
 
-    return report;
+    @Override
 
-}
+    public DashboardReport getDashboardReport() {
+
+        DashboardReport report = new DashboardReport();
+
+        try (Connection connection = DBConnection.getConnection()) {
+
+            try (PreparedStatement ps = connection.prepareStatement("SELECT COUNT(*) FROM students");
+
+                 ResultSet rs = ps.executeQuery()) {
+
+                if (rs.next())
+
+                    report.setTotalStudents(rs.getInt(1));
+
+            }
+
+            try (PreparedStatement ps = connection.prepareStatement("SELECT COUNT(*) FROM faculty");
+
+                 ResultSet rs = ps.executeQuery()) {
+
+                if (rs.next())
+
+                    report.setTotalFaculty(rs.getInt(1));
+
+            }
+
+            try (PreparedStatement ps = connection.prepareStatement("SELECT COUNT(*) FROM departments");
+
+                 ResultSet rs = ps.executeQuery()) {
+
+                if (rs.next())
+
+                    report.setTotalDepartments(rs.getInt(1));
+
+            }
+
+            try (PreparedStatement ps = connection.prepareStatement("SELECT COUNT(*) FROM subjects");
+
+                 ResultSet rs = ps.executeQuery()) {
+
+                if (rs.next())
+
+                    report.setTotalSubjects(rs.getInt(1));
+
+            }
+
+            try (PreparedStatement ps = connection.prepareStatement("SELECT COUNT(*) FROM books");
+
+                 ResultSet rs = ps.executeQuery()) {
+
+                if (rs.next())
+
+                    report.setTotalBooks(rs.getInt(1));
+
+            }
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+        }
+
+        return report;
+
+    }
 
 }

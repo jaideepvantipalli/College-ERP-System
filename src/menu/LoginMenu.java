@@ -1,17 +1,15 @@
 package menu;
 
 import controller.LoginController;
-import java.util.Scanner;
 import model.User;
+import util.InputUtil;
+import util.ConsolePrinter;
 
 public class LoginMenu {
 
-    private final Scanner scanner;
     private final LoginController controller;
 
     public LoginMenu() {
-
-        scanner = new Scanner(System.in);
 
         controller = new LoginController();
 
@@ -19,33 +17,17 @@ public class LoginMenu {
 
     public void start() {
 
-        System.out.println();
+        ConsolePrinter.title("LOGIN");
 
-        System.out.println("====================================");
+        String username = InputUtil.readString("Username : ");
+        String password = InputUtil.readString("Password : ");
 
-        System.out.println("        LOGIN");
-
-        System.out.println("====================================");
-
-        System.out.print("Username : ");
-
-        String username = scanner.nextLine();
-
-        System.out.print("Password : ");
-
-        String password = scanner.nextLine();
-
-        User user = controller.login(username,
-                                     password);
+        User user = controller.login(username, password);
 
         if (user != null) {
 
-            System.out.println();
-
-            System.out.println("Login Successful");
-
-            System.out.println("Welcome " +
-                    user.getUsername());
+            ConsolePrinter.success("Login Successful");
+            ConsolePrinter.info("Welcome " + user.getUsername());
 
             if (user.getRole().name().equals("ADMIN")) {
 
@@ -53,17 +35,13 @@ public class LoginMenu {
 
             } else {
 
-            System.out.println("Module for "+ user.getRole()+ " will be implemented later.");
+                ConsolePrinter.warning("Module for " + user.getRole() + " will be implemented later.");
 
             }
 
-        }
+        } else {
 
-        else {
-
-            System.out.println();
-
-            System.out.println("Invalid Username or Password");
+            ConsolePrinter.error("Invalid Username or Password");
 
         }
 

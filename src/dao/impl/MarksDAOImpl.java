@@ -32,22 +32,27 @@ public class MarksDAOImpl implements MarksDAO {
     }
 
     @Override
+
     public boolean addMarks(Marks marks) {
 
-        try {
+        try (Connection connection = DBConnection.getConnection();
 
-            Connection connection = DBConnection.getConnection();
-
-            PreparedStatement ps =
-                    connection.prepareStatement(SQLConstants.INSERT_MARKS);
+             PreparedStatement ps = connection.prepareStatement(SQLConstants.INSERT_MARKS)) {
 
             ps.setInt(1, marks.getStudentId());
+
             ps.setInt(2, marks.getSubjectId());
+
             ps.setDouble(3, marks.getInternal1());
+
             ps.setDouble(4, marks.getInternal2());
+
             ps.setDouble(5, marks.getAssignment());
+
             ps.setDouble(6, marks.getSemesterExam());
+
             ps.setDouble(7, marks.getTotal());
+
             ps.setString(8, marks.getGrade());
 
             return ps.executeUpdate() > 0;
@@ -59,21 +64,20 @@ public class MarksDAOImpl implements MarksDAO {
         }
 
         return false;
+
     }
 
     @Override
+
     public List<Marks> getAllMarks() {
 
         List<Marks> marksList = new ArrayList<>();
 
-        try {
+        try (Connection connection = DBConnection.getConnection();
 
-            Connection connection = DBConnection.getConnection();
+             PreparedStatement ps = connection.prepareStatement(SQLConstants.GET_ALL_MARKS);
 
-            PreparedStatement ps =
-                    connection.prepareStatement(SQLConstants.GET_ALL_MARKS);
-
-            ResultSet rs = ps.executeQuery();
+             ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
 
@@ -88,25 +92,26 @@ public class MarksDAOImpl implements MarksDAO {
         }
 
         return marksList;
+
     }
 
     @Override
+
     public Marks getMarksById(int markId) {
 
-        try {
+        try (Connection connection = DBConnection.getConnection();
 
-            Connection connection = DBConnection.getConnection();
-
-            PreparedStatement ps =
-                    connection.prepareStatement(SQLConstants.GET_MARKS_BY_ID);
+             PreparedStatement ps = connection.prepareStatement(SQLConstants.GET_MARKS_BY_ID)) {
 
             ps.setInt(1, markId);
 
-            ResultSet rs = ps.executeQuery();
+            try (ResultSet rs = ps.executeQuery()) {
 
-            if (rs.next()) {
+                if (rs.next()) {
 
-                return mapMarks(rs);
+                    return mapMarks(rs);
+
+                }
 
             }
 
@@ -117,27 +122,28 @@ public class MarksDAOImpl implements MarksDAO {
         }
 
         return null;
+
     }
 
     @Override
+
     public List<Marks> getMarksByStudent(int studentId) {
 
         List<Marks> marksList = new ArrayList<>();
 
-        try {
+        try (Connection connection = DBConnection.getConnection();
 
-            Connection connection = DBConnection.getConnection();
-
-            PreparedStatement ps =
-                    connection.prepareStatement(SQLConstants.GET_MARKS_BY_STUDENT);
+             PreparedStatement ps = connection.prepareStatement(SQLConstants.GET_MARKS_BY_STUDENT)) {
 
             ps.setInt(1, studentId);
 
-            ResultSet rs = ps.executeQuery();
+            try (ResultSet rs = ps.executeQuery()) {
 
-            while (rs.next()) {
+                while (rs.next()) {
 
-                marksList.add(mapMarks(rs));
+                    marksList.add(mapMarks(rs));
+
+                }
 
             }
 
@@ -148,26 +154,33 @@ public class MarksDAOImpl implements MarksDAO {
         }
 
         return marksList;
+
     }
 
     @Override
+
     public boolean updateMarks(Marks marks) {
 
-        try {
+        try (Connection connection = DBConnection.getConnection();
 
-            Connection connection = DBConnection.getConnection();
-
-            PreparedStatement ps =
-                    connection.prepareStatement(SQLConstants.UPDATE_MARKS);
+             PreparedStatement ps = connection.prepareStatement(SQLConstants.UPDATE_MARKS)) {
 
             ps.setInt(1, marks.getStudentId());
+
             ps.setInt(2, marks.getSubjectId());
+
             ps.setDouble(3, marks.getInternal1());
+
             ps.setDouble(4, marks.getInternal2());
+
             ps.setDouble(5, marks.getAssignment());
+
             ps.setDouble(6, marks.getSemesterExam());
+
             ps.setDouble(7, marks.getTotal());
+
             ps.setString(8, marks.getGrade());
+
             ps.setInt(9, marks.getMarkId());
 
             return ps.executeUpdate() > 0;
@@ -179,17 +192,16 @@ public class MarksDAOImpl implements MarksDAO {
         }
 
         return false;
+
     }
 
     @Override
+
     public boolean deleteMarks(int markId) {
 
-        try {
+        try (Connection connection = DBConnection.getConnection();
 
-            Connection connection = DBConnection.getConnection();
-
-            PreparedStatement ps =
-                    connection.prepareStatement(SQLConstants.DELETE_MARKS);
+             PreparedStatement ps = connection.prepareStatement(SQLConstants.DELETE_MARKS)) {
 
             ps.setInt(1, markId);
 
@@ -202,6 +214,7 @@ public class MarksDAOImpl implements MarksDAO {
         }
 
         return false;
+
     }
 
 }

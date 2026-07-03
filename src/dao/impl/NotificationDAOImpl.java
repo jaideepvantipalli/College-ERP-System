@@ -40,32 +40,30 @@ public class NotificationDAOImpl implements NotificationDAO {
     }
 
     @Override
+
     public boolean addNotification(Notification notification) {
 
-        try {
+        try (Connection connection = DBConnection.getConnection();
 
-            Connection connection =
-                    DBConnection.getConnection();
+             PreparedStatement ps = connection.prepareStatement(SQLConstants.INSERT_NOTIFICATION)) {
 
-            PreparedStatement ps =
-                    connection.prepareStatement(
-                            SQLConstants.INSERT_NOTIFICATION);
+            ps.setString(1, notification.getTitle());
 
-            ps.setString(1,
-                    notification.getTitle());
+            ps.setString(2, notification.getMessage());
 
-            ps.setString(2,
-                    notification.getMessage());
+            ps.setString(3, notification.getTargetRole().name());
 
-            ps.setString(3,
-                    notification.getTargetRole().name());
+            ps.setInt(4, notification.getCreatedBy());
 
-            ps.setInt(4,
-                    notification.getCreatedBy());
+            if (notification.getCreatedDate() != null) {
 
-            ps.setTimestamp(5,
-                    Timestamp.valueOf(
-                            notification.getCreatedDate()));
+                ps.setTimestamp(5, Timestamp.valueOf(notification.getCreatedDate()));
+
+            } else {
+
+                ps.setTimestamp(5, new Timestamp(System.currentTimeMillis()));
+
+            }
 
             return ps.executeUpdate() > 0;
 
@@ -76,25 +74,20 @@ public class NotificationDAOImpl implements NotificationDAO {
         }
 
         return false;
+
     }
 
     @Override
+
     public List<Notification> getAllNotifications() {
 
-        List<Notification> list =
-                new ArrayList<>();
+        List<Notification> list = new ArrayList<>();
 
-        try {
+        try (Connection connection = DBConnection.getConnection();
 
-            Connection connection =
-                    DBConnection.getConnection();
+             PreparedStatement ps = connection.prepareStatement(SQLConstants.GET_ALL_NOTIFICATIONS);
 
-            PreparedStatement ps =
-                    connection.prepareStatement(
-                            SQLConstants.GET_ALL_NOTIFICATIONS);
-
-            ResultSet rs =
-                    ps.executeQuery();
+             ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
 
@@ -109,28 +102,26 @@ public class NotificationDAOImpl implements NotificationDAO {
         }
 
         return list;
+
     }
 
     @Override
+
     public Notification getNotificationById(int notificationId) {
 
-        try {
+        try (Connection connection = DBConnection.getConnection();
 
-            Connection connection =
-                    DBConnection.getConnection();
-
-            PreparedStatement ps =
-                    connection.prepareStatement(
-                            SQLConstants.GET_NOTIFICATION_BY_ID);
+             PreparedStatement ps = connection.prepareStatement(SQLConstants.GET_NOTIFICATION_BY_ID)) {
 
             ps.setInt(1, notificationId);
 
-            ResultSet rs =
-                    ps.executeQuery();
+            try (ResultSet rs = ps.executeQuery()) {
 
-            if (rs.next()) {
+                if (rs.next()) {
 
-                return mapNotification(rs);
+                    return mapNotification(rs);
+
+                }
 
             }
 
@@ -141,38 +132,36 @@ public class NotificationDAOImpl implements NotificationDAO {
         }
 
         return null;
+
     }
 
     @Override
+
     public boolean updateNotification(Notification notification) {
 
-        try {
+        try (Connection connection = DBConnection.getConnection();
 
-            Connection connection =
-                    DBConnection.getConnection();
+             PreparedStatement ps = connection.prepareStatement(SQLConstants.UPDATE_NOTIFICATION)) {
 
-            PreparedStatement ps =
-                    connection.prepareStatement(
-                            SQLConstants.UPDATE_NOTIFICATION);
+            ps.setString(1, notification.getTitle());
 
-            ps.setString(1,
-                    notification.getTitle());
+            ps.setString(2, notification.getMessage());
 
-            ps.setString(2,
-                    notification.getMessage());
+            ps.setString(3, notification.getTargetRole().name());
 
-            ps.setString(3,
-                    notification.getTargetRole().name());
+            ps.setInt(4, notification.getCreatedBy());
 
-            ps.setInt(4,
-                    notification.getCreatedBy());
+            if (notification.getCreatedDate() != null) {
 
-            ps.setTimestamp(5,
-                    Timestamp.valueOf(
-                            notification.getCreatedDate()));
+                ps.setTimestamp(5, Timestamp.valueOf(notification.getCreatedDate()));
 
-            ps.setInt(6,
-                    notification.getNotificationId());
+            } else {
+
+                ps.setTimestamp(5, new Timestamp(System.currentTimeMillis()));
+
+            }
+
+            ps.setInt(6, notification.getNotificationId());
 
             return ps.executeUpdate() > 0;
 
@@ -183,19 +172,16 @@ public class NotificationDAOImpl implements NotificationDAO {
         }
 
         return false;
+
     }
 
     @Override
+
     public boolean deleteNotification(int notificationId) {
 
-        try {
+        try (Connection connection = DBConnection.getConnection();
 
-            Connection connection =
-                    DBConnection.getConnection();
-
-            PreparedStatement ps =
-                    connection.prepareStatement(
-                            SQLConstants.DELETE_NOTIFICATION);
+             PreparedStatement ps = connection.prepareStatement(SQLConstants.DELETE_NOTIFICATION)) {
 
             ps.setInt(1, notificationId);
 
@@ -208,6 +194,7 @@ public class NotificationDAOImpl implements NotificationDAO {
         }
 
         return false;
+
     }
 
 }

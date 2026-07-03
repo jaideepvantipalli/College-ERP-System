@@ -2,19 +2,19 @@ package menu;
 
 import controller.BookIssueController;
 import model.BookIssue;
+import util.InputUtil;
+import util.ConsolePrinter;
+import util.TablePrinter;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Scanner;
 
 public class BookIssueMenu {
 
-    private final Scanner scanner;
     private final BookIssueController controller;
 
     public BookIssueMenu() {
 
-        scanner = new Scanner(System.in);
         controller = new BookIssueController();
 
     }
@@ -23,18 +23,14 @@ public class BookIssueMenu {
 
         while (true) {
 
-            System.out.println("\n================================");
-            System.out.println(" BOOK ISSUE MANAGEMENT ");
-            System.out.println("================================");
+            ConsolePrinter.title("Book Issue Management");
             System.out.println("1. Issue Book");
             System.out.println("2. View Issued Books");
             System.out.println("3. Return Book");
             System.out.println("4. Delete Issue Record");
             System.out.println("0. Back");
 
-            System.out.print("Choice : ");
-
-            int choice = Integer.parseInt(scanner.nextLine());
+            int choice = InputUtil.readInt("Choice : ");
 
             switch (choice) {
 
@@ -58,7 +54,7 @@ public class BookIssueMenu {
                     return;
 
                 default:
-                    System.out.println("Invalid Choice.");
+                    ConsolePrinter.warning("Invalid Choice.");
 
             }
 
@@ -70,56 +66,60 @@ public class BookIssueMenu {
 
         BookIssue issue = new BookIssue();
 
-        System.out.print("Student ID : ");
-        issue.setStudentId(Integer.parseInt(scanner.nextLine()));
-
-        System.out.print("Book ID : ");
-        issue.setBookId(Integer.parseInt(scanner.nextLine()));
-
+        issue.setStudentId(InputUtil.readInt("Student ID : "));
+        issue.setBookId(InputUtil.readInt("Book ID : "));
         issue.setIssueDate(LocalDate.now());
-
         issue.setDueDate(LocalDate.now().plusDays(15));
-
         issue.setReturnDate(null);
-
         issue.setFine(0);
 
         if (controller.issueBook(issue))
 
-            System.out.println("Book Issued Successfully.");
+            ConsolePrinter.success("Book Issued Successfully.");
 
         else
 
-            System.out.println("Issue Failed.");
+            ConsolePrinter.error("Issue Failed.");
 
     }
 
     private void viewIssuedBooks() {
 
-        List<BookIssue> issues =
-                controller.getAllIssuedBooks();
+        List<BookIssue> issues = controller.getAllIssuedBooks();
+
+        if (issues.isEmpty()) {
+            ConsolePrinter.info("No active book issues found.");
+            return;
+        }
+
+        TablePrinter.heading("Issue ID", "Student ID", "Book ID", "Issue Date", "Due Date", "Return Date", "Fine");
 
         for (BookIssue issue : issues) {
 
-            System.out.println(issue);
+            System.out.printf("%-18s%-18s%-18s%-18s%-18s%-18s%-18s%n",
+                    issue.getIssueId(),
+                    issue.getStudentId(),
+                    issue.getBookId(),
+                    issue.getIssueDate(),
+                    issue.getDueDate(),
+                    issue.getReturnDate() != null ? issue.getReturnDate() : "Not Returned",
+                    issue.getFine());
 
         }
+
+        TablePrinter.line();
 
     }
 
     private void returnBook() {
 
-        System.out.print("Issue ID : ");
+        int issueId = InputUtil.readInt("Issue ID : ");
 
-        int issueId =
-                Integer.parseInt(scanner.nextLine());
-
-        BookIssue issue =
-                controller.getIssueById(issueId);
+        BookIssue issue = controller.getIssueById(issueId);
 
         if (issue == null) {
 
-            System.out.println("Issue Record Not Found.");
+            ConsolePrinter.error("Issue Record Not Found.");
 
             return;
 
@@ -143,28 +143,25 @@ public class BookIssueMenu {
 
         if (controller.updateIssue(issue))
 
-            System.out.println("Book Returned Successfully.");
+            ConsolePrinter.success("Book Returned Successfully. Fine: " + issue.getFine());
 
         else
 
-            System.out.println("Return Failed.");
+            ConsolePrinter.error("Return Failed.");
 
     }
 
     private void deleteIssue() {
 
-        System.out.print("Issue ID : ");
-
-        int issueId =
-                Integer.parseInt(scanner.nextLine());
+        int issueId = InputUtil.readInt("Issue ID : ");
 
         if (controller.deleteIssue(issueId))
 
-            System.out.println("Deleted Successfully.");
+            ConsolePrinter.success("Deleted Successfully.");
 
         else
 
-            System.out.println("Delete Failed.");
+            ConsolePrinter.error("Delete Failed.");
 
     }
 

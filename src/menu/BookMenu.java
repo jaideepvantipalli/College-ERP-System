@@ -2,18 +2,18 @@ package menu;
 
 import controller.BookController;
 import model.Book;
+import util.InputUtil;
+import util.ConsolePrinter;
+import util.TablePrinter;
 
 import java.util.List;
-import java.util.Scanner;
 
 public class BookMenu {
 
-    private final Scanner scanner;
     private final BookController controller;
 
     public BookMenu() {
 
-        scanner = new Scanner(System.in);
         controller = new BookController();
 
     }
@@ -22,9 +22,7 @@ public class BookMenu {
 
         while (true) {
 
-            System.out.println("\n===============================");
-            System.out.println(" BOOK MANAGEMENT ");
-            System.out.println("===============================");
+            ConsolePrinter.title("Book Management");
             System.out.println("1. Add Book");
             System.out.println("2. View Books");
             System.out.println("3. Search Book");
@@ -32,10 +30,7 @@ public class BookMenu {
             System.out.println("5. Delete Book");
             System.out.println("0. Back");
 
-            System.out.print("Choice : ");
-
-            int choice =
-                    Integer.parseInt(scanner.nextLine());
+            int choice = InputUtil.readInt("Choice : ");
 
             switch (choice) {
 
@@ -63,7 +58,7 @@ public class BookMenu {
                     return;
 
                 default:
-                    System.out.println("Invalid Choice");
+                    ConsolePrinter.warning("Invalid Choice");
 
             }
 
@@ -75,118 +70,118 @@ public class BookMenu {
 
         Book book = new Book();
 
-        System.out.print("ISBN : ");
-        book.setIsbn(scanner.nextLine());
-
-        System.out.print("Title : ");
-        book.setTitle(scanner.nextLine());
-
-        System.out.print("Author : ");
-        book.setAuthor(scanner.nextLine());
-
-        System.out.print("Publisher : ");
-        book.setPublisher(scanner.nextLine());
-
-        System.out.print("Category : ");
-        book.setCategory(scanner.nextLine());
-
-        System.out.print("Quantity : ");
-        book.setQuantity(Integer.parseInt(scanner.nextLine()));
-
+        book.setIsbn(InputUtil.readString("ISBN : "));
+        book.setTitle(InputUtil.readString("Title : "));
+        book.setAuthor(InputUtil.readString("Author : "));
+        book.setPublisher(InputUtil.readString("Publisher : "));
+        book.setCategory(InputUtil.readString("Category : "));
+        book.setQuantity(InputUtil.readInt("Quantity : "));
         book.setAvailableQuantity(book.getQuantity());
 
         if(controller.addBook(book))
 
-            System.out.println("Book Added Successfully.");
+            ConsolePrinter.success("Book Added Successfully.");
 
         else
 
-            System.out.println("Failed.");
+            ConsolePrinter.error("Failed.");
 
     }
 
     private void viewBooks(){
 
-        List<Book> books=
-                controller.getAllBooks();
+        List<Book> books = controller.getAllBooks();
 
-        for(Book book:books){
+        if (books.isEmpty()) {
+            ConsolePrinter.info("No books found in library.");
+            return;
+        }
 
-            System.out.println(book);
+        TablePrinter.heading("ID", "ISBN", "Title", "Author", "Publisher", "Category", "Quantity", "Available");
+
+        for(Book b : books){
+
+            System.out.printf("%-18s%-18s%-18s%-18s%-18s%-18s%-18s%-18s%n",
+                    b.getBookId(),
+                    b.getIsbn(),
+                    b.getTitle(),
+                    b.getAuthor(),
+                    b.getPublisher(),
+                    b.getCategory(),
+                    b.getQuantity(),
+                    b.getAvailableQuantity());
 
         }
+
+        TablePrinter.line();
 
     }
 
     private void searchBook(){
 
-        System.out.print("Book ID : ");
+        int id = InputUtil.readInt("Book ID : ");
 
-        int id=
-                Integer.parseInt(scanner.nextLine());
+        Book b = controller.getBookById(id);
 
-        Book book=
-                controller.getBookById(id);
+        if(b != null) {
 
-        if(book!=null)
+            TablePrinter.heading("ID", "ISBN", "Title", "Author", "Publisher", "Category", "Quantity", "Available");
+            System.out.printf("%-18s%-18s%-18s%-18s%-18s%-18s%-18s%-18s%n",
+                    b.getBookId(),
+                    b.getIsbn(),
+                    b.getTitle(),
+                    b.getAuthor(),
+                    b.getPublisher(),
+                    b.getCategory(),
+                    b.getQuantity(),
+                    b.getAvailableQuantity());
+            TablePrinter.line();
 
-            System.out.println(book);
+        } else
 
-        else
-
-            System.out.println("Book Not Found.");
+            ConsolePrinter.error("Book Not Found.");
 
     }
 
     private void updateBook(){
 
-        System.out.print("Book ID : ");
+        int id = InputUtil.readInt("Book ID : ");
 
-        int id=
-                Integer.parseInt(scanner.nextLine());
+        Book book = controller.getBookById(id);
 
-        Book book=
-                controller.getBookById(id);
+        if(book == null){
 
-        if(book==null){
-
-            System.out.println("Book Not Found.");
+            ConsolePrinter.error("Book Not Found.");
 
             return;
 
         }
 
-        System.out.print("New Quantity : ");
-
-        book.setQuantity(
-                Integer.parseInt(scanner.nextLine()));
+        book.setQuantity(InputUtil.readInt("New Quantity : "));
 
         book.setAvailableQuantity(book.getQuantity());
 
         if(controller.updateBook(book))
 
-            System.out.println("Updated Successfully.");
+            ConsolePrinter.success("Updated Successfully.");
 
         else
 
-            System.out.println("Update Failed.");
+            ConsolePrinter.error("Update Failed.");
 
     }
 
     private void deleteBook(){
 
-        System.out.print("Book ID : ");
-
-        int id=
-                Integer.parseInt(scanner.nextLine());
+        int id = InputUtil.readInt("Book ID : ");
 
         if(controller.deleteBook(id))
 
-            System.out.println("Deleted Successfully.");
+            ConsolePrinter.success("Deleted Successfully.");
 
         else
 
-            System.out.println("Delete Failed.");
+            ConsolePrinter.error("Delete Failed.");
 
     }
 

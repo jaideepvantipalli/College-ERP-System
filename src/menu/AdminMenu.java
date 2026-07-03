@@ -1,25 +1,15 @@
 package menu;
 
-import java.util.Scanner;
+import util.InputUtil;
+import util.ConsolePrinter;
 
 public class AdminMenu {
-
-    private final Scanner scanner;
-
-    public AdminMenu() {
-
-        scanner = new Scanner(System.in);
-
-    }
 
     public void start() {
 
         while (true) {
 
-            System.out.println();
-            System.out.println("==================================");
-            System.out.println(" ADMIN DASHBOARD ");
-            System.out.println("==================================");
+            ConsolePrinter.title("ADMIN DASHBOARD");
             System.out.println("1. Department Module");
             System.out.println("2. Student Module");
             System.out.println("3. Faculty Module");
@@ -31,81 +21,57 @@ public class AdminMenu {
             System.out.println("9. Notification Module");
             System.out.println("10. Report Module");
             System.out.println("0. Exit");
-            System.out.print("Choice : ");
 
-            int choice = Integer.parseInt(scanner.nextLine());
+            int choice = InputUtil.readInt("Choice : ");
 
             switch (choice) {
 
                 case 1:
-
                     new DepartmentMenu().start();
-
                     break;
 
                 case 2:
-
                     new StudentMenu().start();
-
                     break;
 
                 case 3:
-
                     new FacultyMenu().start();
-
                     break;
 
                 case 4:
-
                     new SubjectMenu().start();
-
                     break;
 
                 case 5:
-
                     new AttendanceMenu().start();
-
                     break;
 
                 case 6:
-
                     new MarksMenu().start();
-
                     break;
 
                 case 7:
-
                     new FeeMenu().start();
-
                     break;
 
                 case 8:
-
                     new LibraryMenu().start();
-
                     break;
 
                 case 9:
-
                     new NotificationMenu().start();
-
                     break;
 
                 case 10:
-
                     new ReportMenu().start();
-
                     break;
 
                 case 0:
-
-                    System.out.println("Thank You.");
-
+                    ConsolePrinter.info("Thank You.");
                     System.exit(0);
 
                 default:
-
-                    System.out.println("Invalid Choice.");
+                    ConsolePrinter.warning("Invalid Choice.");
 
             }
 

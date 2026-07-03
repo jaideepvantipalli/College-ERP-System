@@ -3,19 +3,19 @@ package menu;
 import controller.AttendanceController;
 import enums.AttendanceStatus;
 import model.Attendance;
+import util.InputUtil;
+import util.ConsolePrinter;
+import util.TablePrinter;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Scanner;
 
 public class AttendanceMenu {
 
-    private final Scanner scanner;
     private final AttendanceController controller;
 
     public AttendanceMenu() {
 
-        scanner = new Scanner(System.in);
         controller = new AttendanceController();
 
     }
@@ -24,9 +24,7 @@ public class AttendanceMenu {
 
         while (true) {
 
-            System.out.println("\n================================");
-            System.out.println(" ATTENDANCE MANAGEMENT ");
-            System.out.println("================================");
+            ConsolePrinter.title("Attendance Management");
             System.out.println("1. Add Attendance");
             System.out.println("2. View Attendance");
             System.out.println("3. Search Attendance");
@@ -35,9 +33,7 @@ public class AttendanceMenu {
             System.out.println("6. Attendance By Student");
             System.out.println("0. Back");
 
-            System.out.print("Choice : ");
-
-            int choice = Integer.parseInt(scanner.nextLine());
+            int choice = InputUtil.readInt("Choice : ");
 
             switch (choice) {
 
@@ -69,7 +65,7 @@ public class AttendanceMenu {
                     return;
 
                 default:
-                    System.out.println("Invalid Choice.");
+                    ConsolePrinter.warning("Invalid Choice.");
 
             }
 
@@ -81,126 +77,151 @@ public class AttendanceMenu {
 
         Attendance attendance = new Attendance();
 
-        System.out.print("Student ID : ");
-        attendance.setStudentId(Integer.parseInt(scanner.nextLine()));
+        attendance.setStudentId(InputUtil.readInt("Student ID : "));
+        attendance.setSubjectId(InputUtil.readInt("Subject ID : "));
+        attendance.setFacultyId(InputUtil.readInt("Faculty ID : "));
+        attendance.setAttendanceDate(InputUtil.readDate("Attendance Date (yyyy-mm-dd): "));
 
-        System.out.print("Subject ID : ");
-        attendance.setSubjectId(Integer.parseInt(scanner.nextLine()));
-
-        System.out.print("Faculty ID : ");
-        attendance.setFacultyId(Integer.parseInt(scanner.nextLine()));
-
-        System.out.print("Attendance Date (yyyy-mm-dd): ");
-        attendance.setAttendanceDate(LocalDate.parse(scanner.nextLine()));
-
-        System.out.print("Status (PRESENT/ABSENT): ");
-        attendance.setStatus(
-                AttendanceStatus.valueOf(scanner.nextLine().toUpperCase()));
+        String statusStr = InputUtil.readString("Status (PRESENT/ABSENT): ").toUpperCase();
+        while (!statusStr.equals("PRESENT") && !statusStr.equals("ABSENT")) {
+            ConsolePrinter.warning("Invalid Status. Please enter PRESENT or ABSENT.");
+            statusStr = InputUtil.readString("Status (PRESENT/ABSENT): ").toUpperCase();
+        }
+        attendance.setStatus(AttendanceStatus.valueOf(statusStr));
 
         if (controller.addAttendance(attendance))
 
-            System.out.println("Attendance Added Successfully.");
+            ConsolePrinter.success("Attendance Added Successfully.");
 
         else
 
-            System.out.println("Failed.");
+            ConsolePrinter.error("Failed.");
 
     }
 
     private void viewAttendance() {
 
-        List<Attendance> attendanceList =
-                controller.getAllAttendance();
+        List<Attendance> attendanceList = controller.getAllAttendance();
 
-        for (Attendance attendance : attendanceList) {
+        if (attendanceList.isEmpty()) {
+            ConsolePrinter.info("No attendance records found.");
+            return;
+        }
 
-            System.out.println(attendance);
+        TablePrinter.heading("ID", "Student ID", "Subject ID", "Faculty ID", "Date", "Status");
+
+        for (Attendance a : attendanceList) {
+
+            System.out.printf("%-18s%-18s%-18s%-18s%-18s%-18s%n",
+                    a.getAttendanceId(),
+                    a.getStudentId(),
+                    a.getSubjectId(),
+                    a.getFacultyId(),
+                    a.getAttendanceDate(),
+                    a.getStatus());
 
         }
+
+        TablePrinter.line();
 
     }
 
     private void searchAttendance() {
 
-        System.out.print("Attendance ID : ");
+        int id = InputUtil.readInt("Attendance ID : ");
 
-        int id = Integer.parseInt(scanner.nextLine());
+        Attendance a = controller.getAttendanceById(id);
 
-        Attendance attendance =
-                controller.getAttendanceById(id);
+        if (a != null) {
 
-        if (attendance != null)
+            TablePrinter.heading("ID", "Student ID", "Subject ID", "Faculty ID", "Date", "Status");
+            System.out.printf("%-18s%-18s%-18s%-18s%-18s%-18s%n",
+                    a.getAttendanceId(),
+                    a.getStudentId(),
+                    a.getSubjectId(),
+                    a.getFacultyId(),
+                    a.getAttendanceDate(),
+                    a.getStatus());
+            TablePrinter.line();
 
-            System.out.println(attendance);
+        } else
 
-        else
-
-            System.out.println("Attendance Record Not Found.");
+            ConsolePrinter.error("Attendance Record Not Found.");
 
     }
 
     private void updateAttendance() {
 
-        System.out.print("Attendance ID : ");
+        int id = InputUtil.readInt("Attendance ID : ");
 
-        int id = Integer.parseInt(scanner.nextLine());
-
-        Attendance attendance =
-                controller.getAttendanceById(id);
+        Attendance attendance = controller.getAttendanceById(id);
 
         if (attendance == null) {
 
-            System.out.println("Attendance Record Not Found.");
+            ConsolePrinter.error("Attendance Record Not Found.");
 
             return;
 
         }
 
-        System.out.print("New Status (PRESENT/ABSENT): ");
-
-        attendance.setStatus(
-                AttendanceStatus.valueOf(scanner.nextLine().toUpperCase()));
+        String statusStr = InputUtil.readString("New Status (PRESENT/ABSENT): ").toUpperCase();
+        while (!statusStr.equals("PRESENT") && !statusStr.equals("ABSENT")) {
+            ConsolePrinter.warning("Invalid Status. Please enter PRESENT or ABSENT.");
+            statusStr = InputUtil.readString("New Status (PRESENT/ABSENT): ").toUpperCase();
+        }
+        attendance.setStatus(AttendanceStatus.valueOf(statusStr));
 
         if (controller.updateAttendance(attendance))
 
-            System.out.println("Attendance Updated Successfully.");
+            ConsolePrinter.success("Attendance Updated Successfully.");
 
         else
 
-            System.out.println("Update Failed.");
+            ConsolePrinter.error("Update Failed.");
 
     }
 
     private void deleteAttendance() {
 
-        System.out.print("Attendance ID : ");
-
-        int id = Integer.parseInt(scanner.nextLine());
+        int id = InputUtil.readInt("Attendance ID : ");
 
         if (controller.deleteAttendance(id))
 
-            System.out.println("Deleted Successfully.");
+            ConsolePrinter.success("Deleted Successfully.");
 
         else
 
-            System.out.println("Delete Failed.");
+            ConsolePrinter.error("Delete Failed.");
 
     }
 
     private void attendanceByStudent() {
 
-        System.out.print("Student ID : ");
-
-        int studentId = Integer.parseInt(scanner.nextLine());
+        int studentId = InputUtil.readInt("Student ID : ");
 
         List<Attendance> attendanceList =
                 controller.getAttendanceByStudent(studentId);
 
-        for (Attendance attendance : attendanceList) {
+        if (attendanceList.isEmpty()) {
+            ConsolePrinter.info("No attendance records found for this student.");
+            return;
+        }
 
-            System.out.println(attendance);
+        TablePrinter.heading("ID", "Student ID", "Subject ID", "Faculty ID", "Date", "Status");
+
+        for (Attendance a : attendanceList) {
+
+            System.out.printf("%-18s%-18s%-18s%-18s%-18s%-18s%n",
+                    a.getAttendanceId(),
+                    a.getStudentId(),
+                    a.getSubjectId(),
+                    a.getFacultyId(),
+                    a.getAttendanceDate(),
+                    a.getStatus());
 
         }
+
+        TablePrinter.line();
 
     }
 

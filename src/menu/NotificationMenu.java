@@ -4,17 +4,17 @@ import controller.NotificationController;
 import enums.NotificationType;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Scanner;
 import model.Notification;
+import util.InputUtil;
+import util.ConsolePrinter;
+import util.TablePrinter;
 
 public class NotificationMenu {
 
-    private final Scanner scanner;
     private final NotificationController controller;
 
     public NotificationMenu() {
 
-        scanner = new Scanner(System.in);
         controller = new NotificationController();
 
     }
@@ -23,9 +23,7 @@ public class NotificationMenu {
 
         while (true) {
 
-            System.out.println("\n==================================");
-            System.out.println(" NOTIFICATION MANAGEMENT ");
-            System.out.println("==================================");
+            ConsolePrinter.title("Notification Management");
             System.out.println("1. Send Notification");
             System.out.println("2. View Notifications");
             System.out.println("3. Search Notification");
@@ -33,9 +31,7 @@ public class NotificationMenu {
             System.out.println("5. Delete Notification");
             System.out.println("0. Back");
 
-            System.out.print("Choice : ");
-
-            int choice = Integer.parseInt(scanner.nextLine());
+            int choice = InputUtil.readInt("Choice : ");
 
             switch (choice) {
 
@@ -63,7 +59,7 @@ public class NotificationMenu {
                     return;
 
                 default:
-                    System.out.println("Invalid Choice.");
+                    ConsolePrinter.warning("Invalid Choice.");
 
             }
 
@@ -75,21 +71,15 @@ public class NotificationMenu {
 
         Notification notification = new Notification();
 
-        System.out.print("Title : ");
-        notification.setTitle(scanner.nextLine());
-
-        System.out.print("Message : ");
-        notification.setMessage(scanner.nextLine());
+        notification.setTitle(InputUtil.readString("Title : "));
+        notification.setMessage(InputUtil.readString("Message : "));
 
         System.out.println("Target Role");
         System.out.println("1. ALL");
         System.out.println("2. STUDENT");
         System.out.println("3. FACULTY");
 
-        System.out.print("Choice : ");
-
-        int roleChoice =
-                Integer.parseInt(scanner.nextLine());
+        int roleChoice = InputUtil.readInt("Choice : ");
 
         switch (roleChoice) {
 
@@ -110,20 +100,17 @@ public class NotificationMenu {
 
         }
 
-        System.out.print("Created By (User ID): ");
-
-        notification.setCreatedBy(
-                Integer.parseInt(scanner.nextLine()));
+        notification.setCreatedBy(InputUtil.readInt("Created By (User ID): "));
 
         notification.setCreatedDate(LocalDateTime.now());
 
         if (controller.addNotification(notification)) {
 
-            System.out.println("\nNotification Sent Successfully.");
+            ConsolePrinter.success("Notification Sent Successfully.");
 
         } else {
 
-            System.out.println("\nFailed to Send Notification.");
+            ConsolePrinter.error("Failed to Send Notification.");
 
         }
 
@@ -131,42 +118,55 @@ public class NotificationMenu {
 
     private void viewNotifications() {
 
-        List<Notification> notifications =
-                controller.getAllNotifications();
+        List<Notification> notifications = controller.getAllNotifications();
 
         if (notifications.isEmpty()) {
 
-            System.out.println("\nNo Notifications Found.");
+            ConsolePrinter.info("No Notifications Found.");
 
             return;
 
         }
 
-        for (Notification notification : notifications) {
+        TablePrinter.heading("ID", "Title", "Message", "Target Role", "Created By", "Date");
 
-            System.out.println(notification);
+        for (Notification n : notifications) {
+
+            System.out.printf("%-18s%-18s%-18s%-18s%-18s%-18s%n",
+                    n.getNotificationId(),
+                    n.getTitle(),
+                    n.getMessage(),
+                    n.getTargetRole(),
+                    n.getCreatedBy(),
+                    n.getCreatedDate() != null ? n.getCreatedDate() : "N/A");
 
         }
+
+        TablePrinter.line();
 
     }
 
     private void searchNotification() {
 
-        System.out.print("Notification ID : ");
+        int id = InputUtil.readInt("Notification ID : ");
 
-        int id =
-                Integer.parseInt(scanner.nextLine());
+        Notification n = controller.getNotificationById(id);
 
-        Notification notification =
-                controller.getNotificationById(id);
+        if (n != null) {
 
-        if (notification != null) {
-
-            System.out.println(notification);
+            TablePrinter.heading("ID", "Title", "Message", "Target Role", "Created By", "Date");
+            System.out.printf("%-18s%-18s%-18s%-18s%-18s%-18s%n",
+                    n.getNotificationId(),
+                    n.getTitle(),
+                    n.getMessage(),
+                    n.getTargetRole(),
+                    n.getCreatedBy(),
+                    n.getCreatedDate() != null ? n.getCreatedDate() : "N/A");
+            TablePrinter.line();
 
         } else {
 
-            System.out.println("Notification Not Found.");
+            ConsolePrinter.error("Notification Not Found.");
 
         }
 
@@ -174,35 +174,27 @@ public class NotificationMenu {
 
     private void updateNotification() {
 
-        System.out.print("Notification ID : ");
+        int id = InputUtil.readInt("Notification ID : ");
 
-        int id =
-                Integer.parseInt(scanner.nextLine());
-
-        Notification notification =
-                controller.getNotificationById(id);
+        Notification notification = controller.getNotificationById(id);
 
         if (notification == null) {
 
-            System.out.println("Notification Not Found.");
+            ConsolePrinter.error("Notification Not Found.");
 
             return;
 
         }
 
-        System.out.print("New Title : ");
-        notification.setTitle(scanner.nextLine());
-
-        System.out.print("New Message : ");
-        notification.setMessage(scanner.nextLine());
+        notification.setTitle(InputUtil.readString("New Title : "));
+        notification.setMessage(InputUtil.readString("New Message : "));
 
         System.out.println("Target Role");
         System.out.println("1. ALL");
         System.out.println("2. STUDENT");
         System.out.println("3. FACULTY");
 
-        int roleChoice =
-                Integer.parseInt(scanner.nextLine());
+        int roleChoice = InputUtil.readInt("Choice : ");
 
         switch (roleChoice) {
 
@@ -227,11 +219,11 @@ public class NotificationMenu {
 
         if (controller.updateNotification(notification)) {
 
-            System.out.println("Notification Updated Successfully.");
+            ConsolePrinter.success("Notification Updated Successfully.");
 
         } else {
 
-            System.out.println("Update Failed.");
+            ConsolePrinter.error("Update Failed.");
 
         }
 
@@ -239,18 +231,15 @@ public class NotificationMenu {
 
     private void deleteNotification() {
 
-        System.out.print("Notification ID : ");
-
-        int id =
-                Integer.parseInt(scanner.nextLine());
+        int id = InputUtil.readInt("Notification ID : ");
 
         if (controller.deleteNotification(id)) {
 
-            System.out.println("Notification Deleted Successfully.");
+            ConsolePrinter.success("Notification Deleted Successfully.");
 
         } else {
 
-            System.out.println("Delete Failed.");
+            ConsolePrinter.error("Delete Failed.");
 
         }
 

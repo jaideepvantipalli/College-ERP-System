@@ -2,19 +2,20 @@ package menu;
 
 import controller.StudentController;
 import model.Student;
+import util.InputUtil;
+import util.ValidationUtil;
+import util.ConsolePrinter;
+import util.TablePrinter;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Scanner;
 
 public class StudentMenu {
 
-    private final Scanner scanner;
     private final StudentController controller;
 
     public StudentMenu() {
 
-        scanner = new Scanner(System.in);
         controller = new StudentController();
 
     }
@@ -23,9 +24,7 @@ public class StudentMenu {
 
         while (true) {
 
-            System.out.println("\n==================================");
-            System.out.println(" STUDENT MANAGEMENT ");
-            System.out.println("==================================");
+            ConsolePrinter.title("Student Management");
             System.out.println("1. Add Student");
             System.out.println("2. View Students");
             System.out.println("3. Search Student");
@@ -34,9 +33,7 @@ public class StudentMenu {
             System.out.println("6. Students By Department");
             System.out.println("0. Back");
 
-            System.out.print("Choice : ");
-
-            int choice = Integer.parseInt(scanner.nextLine());
+            int choice = InputUtil.readInt("Choice : ");
 
             switch (choice) {
 
@@ -68,7 +65,7 @@ public class StudentMenu {
                     return;
 
                 default:
-                    System.out.println("Invalid Choice.");
+                    ConsolePrinter.warning("Invalid Choice.");
             }
 
         }
@@ -79,51 +76,47 @@ public class StudentMenu {
 
         Student student = new Student();
 
-        System.out.print("Roll Number : ");
-        student.setRollNumber(scanner.nextLine());
+        student.setRollNumber(InputUtil.readString("Roll Number : "));
 
-        System.out.print("First Name : ");
-        student.setFirstName(scanner.nextLine());
+        String firstName = InputUtil.readString("First Name : ");
+        while (!ValidationUtil.isValidName(firstName)) {
+            ConsolePrinter.warning("First Name must be at least 2 characters. Please try again.");
+            firstName = InputUtil.readString("First Name : ");
+        }
+        student.setFirstName(firstName);
 
-        System.out.print("Last Name : ");
-        student.setLastName(scanner.nextLine());
+        student.setLastName(InputUtil.readString("Last Name : "));
+        student.setGender(InputUtil.readString("Gender : "));
+        student.setDateOfBirth(InputUtil.readDate("Date of Birth (yyyy-mm-dd): "));
 
-        System.out.print("Gender : ");
-        student.setGender(scanner.nextLine());
+        String email = InputUtil.readString("Email : ");
+        while (!ValidationUtil.isValidEmail(email)) {
+            ConsolePrinter.warning("Invalid Email format. Please try again.");
+            email = InputUtil.readString("Email : ");
+        }
+        student.setEmail(email);
 
-        System.out.print("Date of Birth (yyyy-mm-dd): ");
-        student.setDateOfBirth(LocalDate.parse(scanner.nextLine()));
+        String phone = InputUtil.readString("Phone : ");
+        while (!ValidationUtil.isValidPhone(phone)) {
+            ConsolePrinter.warning("Phone number must be 10 digits. Please try again.");
+            phone = InputUtil.readString("Phone : ");
+        }
+        student.setPhone(phone);
 
-        System.out.print("Email : ");
-        student.setEmail(scanner.nextLine());
-
-        System.out.print("Phone : ");
-        student.setPhone(scanner.nextLine());
-
-        System.out.print("Department ID : ");
-        student.setDepartmentId(Integer.parseInt(scanner.nextLine()));
-
-        System.out.print("Academic Year : ");
-        student.setAcademicYear(Integer.parseInt(scanner.nextLine()));
-
-        System.out.print("Section : ");
-        student.setSection(scanner.nextLine().charAt(0));
-
-        System.out.print("Address : ");
-        student.setAddress(scanner.nextLine());
-
-        System.out.print("Admission Date (yyyy-mm-dd): ");
-        student.setAdmissionDate(LocalDate.parse(scanner.nextLine()));
-
+        student.setDepartmentId(InputUtil.readInt("Department ID : "));
+        student.setAcademicYear(InputUtil.readInt("Academic Year : "));
+        student.setSection(InputUtil.readChar("Section : "));
+        student.setAddress(InputUtil.readString("Address : "));
+        student.setAdmissionDate(InputUtil.readDate("Admission Date (yyyy-mm-dd): "));
         student.setStatus("ACTIVE");
 
         if (controller.addStudent(student))
 
-            System.out.println("Student Added Successfully.");
+            ConsolePrinter.success("Student Added Successfully.");
 
         else
 
-            System.out.println("Failed.");
+            ConsolePrinter.error("Failed.");
 
     }
 
@@ -131,97 +124,146 @@ public class StudentMenu {
 
         List<Student> students = controller.getAllStudents();
 
-        for (Student student : students) {
+        if (students.isEmpty()) {
+            ConsolePrinter.info("No student records found.");
+            return;
+        }
 
-            System.out.println(student);
+        TablePrinter.heading("ID", "Roll Number", "Name", "Gender", "Email", "Phone", "Dept ID", "Year", "Sec", "Status");
+
+        for (Student s : students) {
+
+            System.out.printf("%-18s%-18s%-18s%-18s%-18s%-18s%-18s%-18s%-18s%-18s%n",
+                    s.getStudentId(),
+                    s.getRollNumber(),
+                    s.getFirstName() + " " + (s.getLastName() != null ? s.getLastName() : ""),
+                    s.getGender(),
+                    s.getEmail(),
+                    s.getPhone(),
+                    s.getDepartmentId(),
+                    s.getAcademicYear(),
+                    s.getSection(),
+                    s.getStatus());
 
         }
+
+        TablePrinter.line();
 
     }
 
     private void searchStudent() {
 
-        System.out.print("Student ID : ");
+        int id = InputUtil.readInt("Student ID : ");
 
-        int id = Integer.parseInt(scanner.nextLine());
+        Student s = controller.getStudentById(id);
 
-        Student student = controller.getStudentById(id);
+        if (s != null) {
 
-        if (student != null)
+            TablePrinter.heading("ID", "Roll Number", "Name", "Gender", "Email", "Phone", "Dept ID", "Year", "Sec", "Status");
+            System.out.printf("%-18s%-18s%-18s%-18s%-18s%-18s%-18s%-18s%-18s%-18s%n",
+                    s.getStudentId(),
+                    s.getRollNumber(),
+                    s.getFirstName() + " " + (s.getLastName() != null ? s.getLastName() : ""),
+                    s.getGender(),
+                    s.getEmail(),
+                    s.getPhone(),
+                    s.getDepartmentId(),
+                    s.getAcademicYear(),
+                    s.getSection(),
+                    s.getStatus());
+            TablePrinter.line();
 
-            System.out.println(student);
+        } else
 
-        else
-
-            System.out.println("Student Not Found.");
+            ConsolePrinter.error("Student Not Found.");
 
     }
 
     private void updateStudent() {
 
-        System.out.print("Student ID : ");
-
-        int id = Integer.parseInt(scanner.nextLine());
+        int id = InputUtil.readInt("Student ID : ");
 
         Student student = controller.getStudentById(id);
 
         if (student == null) {
 
-            System.out.println("Student Not Found.");
+            ConsolePrinter.error("Student Not Found.");
 
             return;
 
         }
 
-        System.out.print("New Email : ");
-        student.setEmail(scanner.nextLine());
+        String email = InputUtil.readString("New Email : ");
+        while (!ValidationUtil.isValidEmail(email)) {
+            ConsolePrinter.warning("Invalid Email format. Please try again.");
+            email = InputUtil.readString("New Email : ");
+        }
+        student.setEmail(email);
 
-        System.out.print("New Phone : ");
-        student.setPhone(scanner.nextLine());
+        String phone = InputUtil.readString("New Phone : ");
+        while (!ValidationUtil.isValidPhone(phone)) {
+            ConsolePrinter.warning("Phone number must be 10 digits. Please try again.");
+            phone = InputUtil.readString("New Phone : ");
+        }
+        student.setPhone(phone);
 
-        System.out.print("New Address : ");
-        student.setAddress(scanner.nextLine());
+        student.setAddress(InputUtil.readString("New Address : "));
 
         if (controller.updateStudent(student))
 
-            System.out.println("Updated Successfully.");
+            ConsolePrinter.success("Updated Successfully.");
 
         else
 
-            System.out.println("Update Failed.");
+            ConsolePrinter.error("Update Failed.");
 
     }
 
     private void deleteStudent() {
 
-        System.out.print("Student ID : ");
-
-        int id = Integer.parseInt(scanner.nextLine());
+        int id = InputUtil.readInt("Student ID : ");
 
         if (controller.deleteStudent(id))
 
-            System.out.println("Deleted Successfully.");
+            ConsolePrinter.success("Deleted Successfully.");
 
         else
 
-            System.out.println("Delete Failed.");
+            ConsolePrinter.error("Delete Failed.");
 
     }
 
     private void studentsByDepartment() {
 
-        System.out.print("Department ID : ");
-
-        int departmentId = Integer.parseInt(scanner.nextLine());
+        int departmentId = InputUtil.readInt("Department ID : ");
 
         List<Student> students =
                 controller.getStudentsByDepartment(departmentId);
 
-        for (Student student : students) {
+        if (students.isEmpty()) {
+            ConsolePrinter.info("No students found in this department.");
+            return;
+        }
 
-            System.out.println(student);
+        TablePrinter.heading("ID", "Roll Number", "Name", "Gender", "Email", "Phone", "Dept ID", "Year", "Sec", "Status");
+
+        for (Student s : students) {
+
+            System.out.printf("%-18s%-18s%-18s%-18s%-18s%-18s%-18s%-18s%-18s%-18s%n",
+                    s.getStudentId(),
+                    s.getRollNumber(),
+                    s.getFirstName() + " " + (s.getLastName() != null ? s.getLastName() : ""),
+                    s.getGender(),
+                    s.getEmail(),
+                    s.getPhone(),
+                    s.getDepartmentId(),
+                    s.getAcademicYear(),
+                    s.getSection(),
+                    s.getStatus());
 
         }
+
+        TablePrinter.line();
 
     }
 

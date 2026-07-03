@@ -21,32 +21,55 @@ public class FeeDAOImpl implements FeeDAO {
         Fee fee = new Fee();
 
         fee.setFeeId(rs.getInt("fee_id"));
+
         fee.setStudentId(rs.getInt("student_id"));
+
         fee.setTotalFee(rs.getDouble("total_fee"));
+
         fee.setPaidFee(rs.getDouble("paid_fee"));
+
         fee.setBalance(rs.getDouble("balance"));
-        fee.setPaymentDate(rs.getDate("payment_date").toLocalDate());
+
+        Date paymentDate = rs.getDate("payment_date");
+
+        if (paymentDate != null) {
+
+            fee.setPaymentDate(paymentDate.toLocalDate());
+
+        }
+
         fee.setStatus(FeeStatus.valueOf(rs.getString("status")));
 
         return fee;
+
     }
 
     @Override
+
     public boolean addFee(Fee fee) {
 
-        try {
+        try (Connection connection = DBConnection.getConnection();
 
-            Connection connection =
-                    DBConnection.getConnection();
-
-            PreparedStatement ps =
-                    connection.prepareStatement(SQLConstants.INSERT_FEE);
+             PreparedStatement ps = connection.prepareStatement(SQLConstants.INSERT_FEE)) {
 
             ps.setInt(1, fee.getStudentId());
+
             ps.setDouble(2, fee.getTotalFee());
+
             ps.setDouble(3, fee.getPaidFee());
+
             ps.setDouble(4, fee.getBalance());
-            ps.setDate(5, Date.valueOf(fee.getPaymentDate()));
+
+            if (fee.getPaymentDate() == null) {
+
+                ps.setNull(5, java.sql.Types.DATE);
+
+            } else {
+
+                ps.setDate(5, Date.valueOf(fee.getPaymentDate()));
+
+            }
+
             ps.setString(6, fee.getStatus().name());
 
             return ps.executeUpdate() > 0;
@@ -58,22 +81,20 @@ public class FeeDAOImpl implements FeeDAO {
         }
 
         return false;
+
     }
 
     @Override
+
     public List<Fee> getAllFees() {
 
         List<Fee> fees = new ArrayList<>();
 
-        try {
+        try (Connection connection = DBConnection.getConnection();
 
-            Connection connection =
-                    DBConnection.getConnection();
+             PreparedStatement ps = connection.prepareStatement(SQLConstants.GET_ALL_FEES);
 
-            PreparedStatement ps =
-                    connection.prepareStatement(SQLConstants.GET_ALL_FEES);
-
-            ResultSet rs = ps.executeQuery();
+             ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
 
@@ -88,26 +109,26 @@ public class FeeDAOImpl implements FeeDAO {
         }
 
         return fees;
+
     }
 
     @Override
+
     public Fee getFeeById(int feeId) {
 
-        try {
+        try (Connection connection = DBConnection.getConnection();
 
-            Connection connection =
-                    DBConnection.getConnection();
-
-            PreparedStatement ps =
-                    connection.prepareStatement(SQLConstants.GET_FEE_BY_ID);
+             PreparedStatement ps = connection.prepareStatement(SQLConstants.GET_FEE_BY_ID)) {
 
             ps.setInt(1, feeId);
 
-            ResultSet rs = ps.executeQuery();
+            try (ResultSet rs = ps.executeQuery()) {
 
-            if (rs.next()) {
+                if (rs.next()) {
 
-                return mapFee(rs);
+                    return mapFee(rs);
+
+                }
 
             }
 
@@ -118,28 +139,28 @@ public class FeeDAOImpl implements FeeDAO {
         }
 
         return null;
+
     }
 
     @Override
+
     public List<Fee> getFeeByStudent(int studentId) {
 
         List<Fee> fees = new ArrayList<>();
 
-        try {
+        try (Connection connection = DBConnection.getConnection();
 
-            Connection connection =
-                    DBConnection.getConnection();
-
-            PreparedStatement ps =
-                    connection.prepareStatement(SQLConstants.GET_FEE_BY_STUDENT);
+             PreparedStatement ps = connection.prepareStatement(SQLConstants.GET_FEE_BY_STUDENT)) {
 
             ps.setInt(1, studentId);
 
-            ResultSet rs = ps.executeQuery();
+            try (ResultSet rs = ps.executeQuery()) {
 
-            while (rs.next()) {
+                while (rs.next()) {
 
-                fees.add(mapFee(rs));
+                    fees.add(mapFee(rs));
+
+                }
 
             }
 
@@ -150,25 +171,37 @@ public class FeeDAOImpl implements FeeDAO {
         }
 
         return fees;
+
     }
 
     @Override
+
     public boolean updateFee(Fee fee) {
 
-        try {
+        try (Connection connection = DBConnection.getConnection();
 
-            Connection connection =
-                    DBConnection.getConnection();
-
-            PreparedStatement ps =
-                    connection.prepareStatement(SQLConstants.UPDATE_FEE);
+             PreparedStatement ps = connection.prepareStatement(SQLConstants.UPDATE_FEE)) {
 
             ps.setInt(1, fee.getStudentId());
+
             ps.setDouble(2, fee.getTotalFee());
+
             ps.setDouble(3, fee.getPaidFee());
+
             ps.setDouble(4, fee.getBalance());
-            ps.setDate(5, Date.valueOf(fee.getPaymentDate()));
+
+            if (fee.getPaymentDate() == null) {
+
+                ps.setNull(5, java.sql.Types.DATE);
+
+            } else {
+
+                ps.setDate(5, Date.valueOf(fee.getPaymentDate()));
+
+            }
+
             ps.setString(6, fee.getStatus().name());
+
             ps.setInt(7, fee.getFeeId());
 
             return ps.executeUpdate() > 0;
@@ -180,18 +213,16 @@ public class FeeDAOImpl implements FeeDAO {
         }
 
         return false;
+
     }
 
     @Override
+
     public boolean deleteFee(int feeId) {
 
-        try {
+        try (Connection connection = DBConnection.getConnection();
 
-            Connection connection =
-                    DBConnection.getConnection();
-
-            PreparedStatement ps =
-                    connection.prepareStatement(SQLConstants.DELETE_FEE);
+             PreparedStatement ps = connection.prepareStatement(SQLConstants.DELETE_FEE)) {
 
             ps.setInt(1, feeId);
 
@@ -204,6 +235,7 @@ public class FeeDAOImpl implements FeeDAO {
         }
 
         return false;
+
     }
 
 }
