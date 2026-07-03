@@ -368,4 +368,3 @@ CREATE INDEX idx_marks_student ON marks(student_id);
 CREATE INDEX idx_fee_student ON fees(student_id);
 
 CREATE INDEX idx_book_title ON books(title);
-

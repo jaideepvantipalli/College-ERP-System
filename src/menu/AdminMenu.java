@@ -68,25 +68,31 @@ public class AdminMenu {
 
                 case 6:
 
-                    System.out.println("Marks Module Coming Next.");
+                    new MarksMenu().start();
 
                     break;
 
                 case 7:
 
-                    System.out.println("Fee Module Coming Next.");
+                    new FeeMenu().start();
 
                     break;
 
                 case 8:
 
-                    System.out.println("Library Module Coming Next.");
+                    new LibraryMenu().start();
 
                     break;
 
                 case 9:
 
-                    System.out.println("Notification Module Coming Next.");
+                    new NotificationMenu().start();
+
+                    break;
+
+                case 10:
+
+                    new ReportMenu().start();
 
                     break;
 

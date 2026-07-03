@@ -270,4 +270,199 @@ public static final String DELETE_ATTENDANCE =
 public static final String GET_ATTENDANCE_BY_STUDENT =
 
         "SELECT * FROM attendance WHERE student_id=?";
+
+        // ==============================
+// MARKS
+// ==============================
+
+public static final String INSERT_MARKS =
+
+        "INSERT INTO marks(" +
+        "student_id," +
+        "subject_id," +
+        "internal1," +
+        "internal2," +
+        "assignment," +
+        "semester_exam," +
+        "total," +
+        "grade)" +
+        " VALUES(?,?,?,?,?,?,?,?)";
+
+
+public static final String GET_ALL_MARKS =
+
+        "SELECT * FROM marks";
+
+
+public static final String GET_MARKS_BY_ID =
+
+        "SELECT * FROM marks WHERE mark_id=?";
+
+
+public static final String UPDATE_MARKS =
+
+        "UPDATE marks SET " +
+        "student_id=?," +
+        "subject_id=?," +
+        "internal1=?," +
+        "internal2=?," +
+        "assignment=?," +
+        "semester_exam=?," +
+        "total=?," +
+        "grade=? " +
+        "WHERE mark_id=?";
+
+
+public static final String DELETE_MARKS =
+
+        "DELETE FROM marks WHERE mark_id=?";
+
+
+public static final String GET_MARKS_BY_STUDENT =
+
+        "SELECT * FROM marks WHERE student_id=?";
+
+        // ==============================
+// FEE
+// ==============================
+
+public static final String INSERT_FEE =
+
+        "INSERT INTO fees(" +
+        "student_id," +
+        "total_fee," +
+        "paid_fee," +
+        "balance," +
+        "payment_date," +
+        "status)" +
+        " VALUES(?,?,?,?,?,?)";
+
+
+public static final String GET_ALL_FEES =
+
+        "SELECT * FROM fees";
+
+
+public static final String GET_FEE_BY_ID =
+
+        "SELECT * FROM fees WHERE fee_id=?";
+
+
+public static final String UPDATE_FEE =
+
+        "UPDATE fees SET " +
+        "student_id=?," +
+        "total_fee=?," +
+        "paid_fee=?," +
+        "balance=?," +
+        "payment_date=?," +
+        "status=? " +
+        "WHERE fee_id=?";
+
+
+public static final String DELETE_FEE =
+
+        "DELETE FROM fees WHERE fee_id=?";
+
+
+public static final String GET_FEE_BY_STUDENT =
+
+        "SELECT * FROM fees WHERE student_id=?";
+
+        // ==============================
+// BOOK
+// ==============================
+
+public static final String INSERT_BOOK =
+
+        "INSERT INTO books(" +
+        "isbn," +
+        "title," +
+        "author," +
+        "publisher," +
+        "category," +
+        "quantity," +
+        "available_quantity)" +
+        " VALUES(?,?,?,?,?,?,?)";
+
+
+public static final String GET_ALL_BOOKS =
+
+        "SELECT * FROM books";
+
+
+public static final String GET_BOOK_BY_ID =
+
+        "SELECT * FROM books WHERE book_id=?";
+
+
+public static final String UPDATE_BOOK =
+
+        "UPDATE books SET " +
+        "isbn=?," +
+        "title=?," +
+        "author=?," +
+        "publisher=?," +
+        "category=?," +
+        "quantity=?," +
+        "available_quantity=? " +
+        "WHERE book_id=?";
+
+
+public static final String DELETE_BOOK =
+
+        "DELETE FROM books WHERE book_id=?";
+
+        // ==============================
+// BOOK ISSUE
+// ==============================
+
+public static final String ISSUE_BOOK =
+
+"INSERT INTO book_issues(student_id,book_id,issue_date,due_date,return_date,fine) VALUES(?,?,?,?,?,?)";
+
+public static final String GET_ALL_ISSUES=
+
+"SELECT * FROM book_issues";
+
+public static final String GET_ISSUE_BY_ID=
+
+"SELECT * FROM book_issues WHERE issue_id=?";
+
+public static final String UPDATE_ISSUE=
+
+"UPDATE book_issues SET student_id=?,book_id=?,issue_date=?,due_date=?,return_date=?,fine=? WHERE issue_id=?";
+
+public static final String DELETE_ISSUE=
+
+"DELETE FROM book_issues WHERE issue_id=?";
+
+// ==============================
+// NOTIFICATION
+// ==============================
+
+public static final String INSERT_NOTIFICATION =
+
+"INSERT INTO notifications(title,message,target_role,created_by,created_date) VALUES(?,?,?,?,?)";
+
+
+public static final String GET_ALL_NOTIFICATIONS =
+
+"SELECT * FROM notifications";
+
+
+public static final String GET_NOTIFICATION_BY_ID =
+
+"SELECT * FROM notifications WHERE notification_id=?";
+
+
+public static final String UPDATE_NOTIFICATION =
+
+"UPDATE notifications SET title=?,message=?,target_role=?,created_by=?,created_date=? WHERE notification_id=?";
+
+
+public static final String DELETE_NOTIFICATION =
+
+"DELETE FROM notifications WHERE notification_id=?";
+
 }
