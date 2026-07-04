@@ -13,13 +13,17 @@ VALUES
 ('Artificial Intelligence and Data Science','AIDS','Dr. Kavitha Devi');
 
 -- ==========================================
--- INSERT ADMIN USER
+-- INSERT USERS FOR ALL ROLES
 -- ==========================================
 
 INSERT INTO users
 (username,password,role,status)
 VALUES
-('admin','admin123','ADMIN','ACTIVE');
+('admin','admin123','ADMIN','ACTIVE'),
+('23CSE001','rahul123','STUDENT','ACTIVE'),
+('EMP101','ramesh123','FACULTY','ACTIVE'),
+('librarian','lib123','LIBRARIAN','ACTIVE'),
+('accountant','acc123','ACCOUNTANT','ACTIVE');
 
 -- ==========================================
 -- INSERT FACULTY

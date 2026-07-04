@@ -2,9 +2,13 @@ package config;
 
 import constants.AppConstants;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Properties;
 
 /**
  * Creates and manages database connections.
@@ -12,6 +16,16 @@ import java.sql.SQLException;
 public class DBConnection {
 
     private static Connection connection;
+    private static final Properties properties = new Properties();
+
+    static {
+        try (InputStream input = new FileInputStream("db.properties")) {
+            properties.load(input);
+        } catch (IOException e) {
+            // Suppress error and log a warning; will default to AppConstants.
+            System.err.println("Warning: db.properties not found. Using defaults from AppConstants.");
+        }
+    }
 
     private DBConnection() {
     }
@@ -22,16 +36,16 @@ public class DBConnection {
 
             if (connection == null || connection.isClosed()) {
 
-                String dbUrl = System.getProperty("db.url", AppConstants.DB_URL);
+                String dbUrl = System.getProperty("db.url",
+                        properties.getProperty("db.url", AppConstants.DB_URL));
 
-                connection = DriverManager.getConnection(
+                String dbUsername = System.getProperty("db.username",
+                        properties.getProperty("db.username", AppConstants.DB_USERNAME));
 
-                        dbUrl,
+                String dbPassword = System.getProperty("db.password",
+                        properties.getProperty("db.password", AppConstants.DB_PASSWORD));
 
-                        AppConstants.DB_USERNAME,
-
-                        AppConstants.DB_PASSWORD
-                );
+                connection = DriverManager.getConnection(dbUrl, dbUsername, dbPassword);
             }
 
         } catch (SQLException e) {

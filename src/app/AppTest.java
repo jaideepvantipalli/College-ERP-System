@@ -30,6 +30,7 @@ public class AppTest {
             testBookIssueFlow();
             testNotificationFlow();
             testReports();
+            testMultiRoleLoginFlow();
 
             System.out.println("\n===============================================");
             System.out.println("   ALL INTEGRATION TESTS PASSED SUCCESSFULLY!  ");
@@ -518,5 +519,28 @@ public class AppTest {
         assertTrue(r.getTotalBooks() >= 1, "Total books in dashboard should be >= 1");
 
         System.out.println("    [PASSED] Reports & Dashboard");
+    }
+
+    private static void testMultiRoleLoginFlow() {
+        System.out.println("--> Testing Multi-Role Login Flow...");
+        LoginController loginController = new LoginController();
+
+        // 1. Student Login
+        User studentUser = loginController.login("23CSE001", "rahul123");
+        assertEquals(UserRole.STUDENT, studentUser.getRole(), "Should login as STUDENT");
+
+        // 2. Faculty Login
+        User facultyUser = loginController.login("EMP101", "ramesh123");
+        assertEquals(UserRole.FACULTY, facultyUser.getRole(), "Should login as FACULTY");
+
+        // 3. Librarian Login
+        User libUser = loginController.login("librarian", "lib123");
+        assertEquals(UserRole.LIBRARIAN, libUser.getRole(), "Should login as LIBRARIAN");
+
+        // 4. Accountant Login
+        User accUser = loginController.login("accountant", "acc123");
+        assertEquals(UserRole.ACCOUNTANT, accUser.getRole(), "Should login as ACCOUNTANT");
+
+        System.out.println("    [PASSED] Multi-Role Login Flow");
     }
 }

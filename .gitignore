@@ -40,3 +40,4 @@ desktop.ini
 
 # Environment
 .env
+db.properties

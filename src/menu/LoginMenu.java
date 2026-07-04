@@ -1,6 +1,7 @@
 package menu;
 
 import controller.LoginController;
+import enums.UserRole;
 import model.User;
 import util.InputUtil;
 import util.ConsolePrinter;
@@ -29,14 +30,24 @@ public class LoginMenu {
             ConsolePrinter.success("Login Successful");
             ConsolePrinter.info("Welcome " + user.getUsername());
 
-            if (user.getRole().name().equals("ADMIN")) {
-
-                new AdminMenu().start();
-
-            } else {
-
-                ConsolePrinter.warning("Module for " + user.getRole() + " will be implemented later.");
-
+            switch (user.getRole()) {
+                case ADMIN:
+                    new AdminMenu().start();
+                    break;
+                case STUDENT:
+                    new StudentDashboardMenu(user).start();
+                    break;
+                case FACULTY:
+                    new FacultyDashboardMenu(user).start();
+                    break;
+                case LIBRARIAN:
+                    new LibrarianDashboardMenu(user).start();
+                    break;
+                case ACCOUNTANT:
+                    new AccountantDashboardMenu(user).start();
+                    break;
+                default:
+                    ConsolePrinter.warning("Module for " + user.getRole() + " is not recognized.");
             }
 
         } else {
